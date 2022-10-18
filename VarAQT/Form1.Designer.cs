@@ -48,6 +48,7 @@
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.stopTxNowButton = new System.Windows.Forms.Button();
             this.beaconTimer = new System.Windows.Forms.Timer(this.components);
@@ -69,8 +70,9 @@
             this.label5 = new System.Windows.Forms.Label();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.textBox6 = new System.Windows.Forms.TextBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.sendBufferProgressBar = new System.Windows.Forms.ProgressBar();
             this.label6 = new System.Windows.Forms.Label();
+            this.recieveBufferProgressBar = new System.Windows.Forms.ProgressBar();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -96,7 +98,7 @@
             this.fromModemTextBox.Name = "fromModemTextBox";
             this.fromModemTextBox.ReadOnly = true;
             this.fromModemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.fromModemTextBox.Size = new System.Drawing.Size(314, 75);
+            this.fromModemTextBox.Size = new System.Drawing.Size(270, 75);
             this.fromModemTextBox.TabIndex = 1;
             // 
             // disconnectFromVaraButton
@@ -156,7 +158,7 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1195, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1157, 24);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -184,16 +186,17 @@
             this.toolStripStatusLabel5,
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel7,
-            this.toolStripStatusLabel8});
+            this.toolStripStatusLabel8,
+            this.toolStripStatusLabel9});
             this.statusStrip1.Location = new System.Drawing.Point(0, 480);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1195, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1157, 22);
             this.statusStrip1.TabIndex = 8;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
-            this.toolStripStatusLabel1.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(111, 17);
             this.toolStripStatusLabel1.Text = "Command Channel";
@@ -201,14 +204,14 @@
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.toolStripStatusLabel2.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel2.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(51, 17);
             this.toolStripStatusLabel2.Text = "Unkown";
             // 
             // toolStripStatusLabel3
             // 
-            this.toolStripStatusLabel3.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel3.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(78, 17);
             this.toolStripStatusLabel3.Text = "Data Channel";
@@ -217,38 +220,45 @@
             // 
             this.toolStripStatusLabel4.ActiveLinkColor = System.Drawing.Color.Red;
             this.toolStripStatusLabel4.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.toolStripStatusLabel4.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel4.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(58, 17);
             this.toolStripStatusLabel4.Text = "Unknown";
             // 
             // toolStripStatusLabel5
             // 
-            this.toolStripStatusLabel5.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel5.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
             this.toolStripStatusLabel5.Size = new System.Drawing.Size(65, 17);
             this.toolStripStatusLabel5.Text = "Frequency:";
             // 
             // toolStripStatusLabel6
             // 
-            this.toolStripStatusLabel6.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel6.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
             this.toolStripStatusLabel6.Size = new System.Drawing.Size(51, 17);
             this.toolStripStatusLabel6.Text = "Unkown";
             // 
             // toolStripStatusLabel7
             // 
-            this.toolStripStatusLabel7.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel7.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
             this.toolStripStatusLabel7.Size = new System.Drawing.Size(54, 17);
             this.toolStripStatusLabel7.Text = "TimeUTC";
             // 
             // toolStripStatusLabel8
             // 
-            this.toolStripStatusLabel8.ForeColor = System.Drawing.SystemColors.Window;
+            this.toolStripStatusLabel8.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
             this.toolStripStatusLabel8.Size = new System.Drawing.Size(21, 17);
             this.toolStripStatusLabel8.Text = "RX";
+            // 
+            // toolStripStatusLabel9
+            // 
+            this.toolStripStatusLabel9.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
+            this.toolStripStatusLabel9.Size = new System.Drawing.Size(62, 17);
+            this.toolStripStatusLabel9.Text = "Beacon in:";
             // 
             // timer1
             // 
@@ -271,7 +281,8 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.BackColor = System.Drawing.SystemColors.Control;
+            this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label1.Location = new System.Drawing.Point(152, 352);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(47, 13);
@@ -341,12 +352,12 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label2.Location = new System.Drawing.Point(152, 32);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(103, 13);
+            this.label2.Size = new System.Drawing.Size(135, 13);
             this.label2.TabIndex = 17;
-            this.label2.Text = "From VARA Modem:";
+            this.label2.Text = "VARA HF Modem channel:";
             // 
             // sendTextTextBox
             // 
@@ -364,23 +375,24 @@
             this.sendToModemTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.sendToModemTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.sendToModemTextBox.ForeColor = System.Drawing.Color.White;
-            this.sendToModemTextBox.Location = new System.Drawing.Point(474, 56);
+            this.sendToModemTextBox.Location = new System.Drawing.Point(428, 56);
             this.sendToModemTextBox.Multiline = true;
             this.sendToModemTextBox.Name = "sendToModemTextBox";
             this.sendToModemTextBox.ReadOnly = true;
             this.sendToModemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.sendToModemTextBox.Size = new System.Drawing.Size(314, 75);
+            this.sendToModemTextBox.Size = new System.Drawing.Size(227, 75);
             this.sendToModemTextBox.TabIndex = 19;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(471, 32);
+            this.label3.BackColor = System.Drawing.SystemColors.Control;
+            this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.label3.Location = new System.Drawing.Point(443, 32);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(117, 13);
+            this.label3.Size = new System.Drawing.Size(63, 13);
             this.label3.TabIndex = 20;
-            this.label3.Text = "Send to VARA Modem:";
+            this.label3.Text = "pskreporter:";
             // 
             // comboBox1
             // 
@@ -434,13 +446,13 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.dataGridView1.Size = new System.Drawing.Size(343, 284);
+            this.dataGridView1.Size = new System.Drawing.Size(358, 284);
             this.dataGridView1.TabIndex = 24;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.ForeColor = System.Drawing.Color.White;
+            this.label5.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label5.Location = new System.Drawing.Point(260, 352);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(33, 13);
@@ -463,33 +475,41 @@
             this.textBox6.Size = new System.Drawing.Size(49, 20);
             this.textBox6.TabIndex = 27;
             // 
-            // progressBar1
+            // sendBufferProgressBar
             // 
-            this.progressBar1.Location = new System.Drawing.Point(351, 349);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(292, 20);
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.progressBar1.TabIndex = 28;
+            this.sendBufferProgressBar.Location = new System.Drawing.Point(351, 352);
+            this.sendBufferProgressBar.Name = "sendBufferProgressBar";
+            this.sendBufferProgressBar.Size = new System.Drawing.Size(292, 17);
+            this.sendBufferProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.sendBufferProgressBar.TabIndex = 28;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.ForeColor = System.Drawing.Color.White;
+            this.label6.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label6.Location = new System.Drawing.Point(791, 32);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(99, 13);
             this.label6.TabIndex = 29;
             this.label6.Text = "Last heard stations:";
             // 
+            // recieveBufferProgressBar
+            // 
+            this.recieveBufferProgressBar.Location = new System.Drawing.Point(351, 375);
+            this.recieveBufferProgressBar.Name = "recieveBufferProgressBar";
+            this.recieveBufferProgressBar.Size = new System.Drawing.Size(292, 17);
+            this.recieveBufferProgressBar.TabIndex = 30;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(1195, 502);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(1157, 502);
             this.ControlBox = false;
+            this.Controls.Add(this.recieveBufferProgressBar);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.sendBufferProgressBar);
             this.Controls.Add(this.textBox6);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.label5);
@@ -573,10 +593,12 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar sendBufferProgressBar;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
+        private System.Windows.Forms.ProgressBar recieveBufferProgressBar;
     }
 }
 

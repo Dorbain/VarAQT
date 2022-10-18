@@ -5,6 +5,18 @@
     <Setting Name="CallSign" Type="System.String" Scope="User">
       <Value Profile="(Default)">PD1AQT</Value>
     </Setting>
+    <Setting Name="Name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Chris</Value>
+    </Setting>
+    <Setting Name="QTH" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Almere</Value>
+    </Setting>
+    <Setting Name="Rig" Type="System.String" Scope="User">
+      <Value Profile="(Default)">YAESU FTdx10</Value>
+    </Setting>
+    <Setting Name="GridLocator" Type="System.String" Scope="User">
+      <Value Profile="(Default)">JO22OI</Value>
+    </Setting>
     <Setting Name="VaraCommandClientIP" Type="System.String" Scope="User">
       <Value Profile="(Default)">127.0.0.1</Value>
     </Setting>
@@ -13,9 +25,6 @@
     </Setting>
     <Setting Name="VaraKissClientPort" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8100</Value>
-    </Setting>
-    <Setting Name="GridLocator" Type="System.String" Scope="User">
-      <Value Profile="(Default)">JO22OI</Value>
     </Setting>
   </Settings>
 </SettingsFile>

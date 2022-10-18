@@ -37,6 +37,54 @@ namespace VarAQT.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Chris")]
+        public string Name {
+            get {
+                return ((string)(this["Name"]));
+            }
+            set {
+                this["Name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Almere")]
+        public string QTH {
+            get {
+                return ((string)(this["QTH"]));
+            }
+            set {
+                this["QTH"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("YAESU FTdx10")]
+        public string Rig {
+            get {
+                return ((string)(this["Rig"]));
+            }
+            set {
+                this["Rig"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("JO22OI")]
+        public string GridLocator {
+            get {
+                return ((string)(this["GridLocator"]));
+            }
+            set {
+                this["GridLocator"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
         public string VaraCommandClientIP {
             get {
@@ -68,18 +116,6 @@ namespace VarAQT.Properties {
             }
             set {
                 this["VaraKissClientPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("JO22OI")]
-        public string GridLocator {
-            get {
-                return ((string)(this["GridLocator"]));
-            }
-            set {
-                this["GridLocator"] = value;
             }
         }
     }

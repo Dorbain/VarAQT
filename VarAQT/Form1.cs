@@ -24,6 +24,7 @@ using VarAQT.Models;
 using System.Xml.Serialization;
 using System.Globalization;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using System.Xml.Linq;
 
 namespace VarAQT
 {
@@ -33,12 +34,17 @@ namespace VarAQT
 
         // For Display Data in Text Box and Info - UI Thread Invoke
         public delegate void AddLogDeligate(string data);
+        
         public AddLogDeligate UpdateFromModemTextBoxDeligate;
-        public AddLogDeligate UpdateSendToModemTextBoxDeligate;
+        //public AddLogDeligate UpdateSendToModemTextBoxDeligate;
         public AddLogDeligate UpdateCallSignTextBoxDeligate;
         public AddLogDeligate UpdateSendTextTextBoxDeligate;
-        public AddLogDeligate UpdateRichTextBox;
+        
+        public delegate void AddRichDeligate(string data, Color color);
+        public AddRichDeligate UpdateRichTextBoxDeligate;
+        
         public AddLogDeligate UpdateDataGridDeligate;
+        
         public delegate void AddNotificationDelegate(int type, bool status);
         public AddNotificationDelegate UpdateStatusIcons;
         // Client Object
@@ -58,10 +64,10 @@ namespace VarAQT
             Log.enableInfo = true;
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             UpdateFromModemTextBoxDeligate = new AddLogDeligate(updateRecievedFromModemTextBox);
-            UpdateSendToModemTextBoxDeligate = new AddLogDeligate(updateSendToModemTextBox);
+            //UpdateSendToModemTextBoxDeligate = new AddLogDeligate(updateSendToModemTextBox);
             UpdateCallSignTextBoxDeligate = new AddLogDeligate(updateCallSignTextBox);
             UpdateSendTextTextBoxDeligate = new AddLogDeligate(updateSendTextTextBox);
-            UpdateRichTextBox = new AddLogDeligate(updateRichTextBox);
+            UpdateRichTextBoxDeligate = new AddRichDeligate(updateRichTextBox);
             UpdateDataGridDeligate = new AddLogDeligate(updateLastHeardDataGrid);
             //UpdateStatusIcons = new AddNotificationDelegate(UpdateSatusIcons);
             timer1.Interval = 100;
@@ -189,6 +195,14 @@ namespace VarAQT
         private void timer1_Tick(object sender, EventArgs e)
         {
             toolStripStatusLabel7.Text = "UTC: " + DateTime.UtcNow.ToString("HH:mm:ss");
+            sendBufferProgressBar.Maximum = Values.sendBufferSize;
+            sendBufferProgressBar.Value = Values.sendBuffer;
+            if (!Values.stationConnected)
+                sendBufferProgressBar.Value = 0;
+            recieveBufferProgressBar.Maximum = Values.recieveBufferSize;
+            recieveBufferProgressBar.Value = Values.recieveBuffer;
+            if (!Values.stationConnected)
+                recieveBufferProgressBar.Value = 0;
         }
         // send beacon timer.
         private void timer2_Tick(object sender, EventArgs e)
@@ -233,65 +247,61 @@ namespace VarAQT
                             Values.busy = false;
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.BackColor = Color.Green));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.Text = "RX"));
-                            //await updateFromModemTextBoxAsync(text); 
                             break;
                         case VARAResult.pttON:
                             await RigControl.enableTX().ConfigureAwait(false);
                             Values.busy = true;
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.BackColor = Color.Red));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.Text = "TX"));
-                            //await updateFromModemTextBoxAsync(text); 
                             break;
                         case VARAResult.busyOFF:
                             this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Green));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "FREE"));
                             Values.busy = false;
-                            //UpdateSatusIcons(0, true);
                             break;
                         case VARAResult.busyON:
                             Values.busy = true;
                             this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Red));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "BUSY"));
-                            //UpdateSatusIcons(1, true);
                             break;
                         case VARAResult.disconnected:
                             Values.outGoingConnection = false;
                             disableButtonsStationDisconnected();
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.pending:
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.cancelPending:
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case string a when text.Contains(VARAResult.registered):
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             enableButtonsRegistered();
                             break;
                         case VARAResult.registered:
-                            //textBox2.Invoke(UpdateTextBox, text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             enableButtonsRegistered();
                             break;
                         case VARAResult.linkRegistered:
                             enableButtonsStationConnected();
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.linkUnRegistered:
                             enableButtonsStationConnected();
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.IAmAlive:
-                            //textBox2.Invoke(UpdateTextBox, text);
+                            Log.Debug(VARAResult.IAmAlive);
                             break;
                         case VARAResult.missingSoundCard:
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.ok:
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
                         case VARAResult.wrong:
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             break;
 
                         case string a when text.Contains("SN "):
@@ -299,28 +309,31 @@ namespace VarAQT
                             {
                                 this.BeginInvoke((Action)(() => textBox5.Text = Functions.sMeter(Values.sMeter)));
                                 this.BeginInvoke((Action)(() => textBox6.Text = Functions.sNMeter(text)));
-                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, text + " " + Functions.sMeter(Values.sMeter));
+                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.sMeter(Values.sMeter));
                                 Values.signalNoice = text;
                             }
                             else
                             {
-                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, text + " " + Functions.sMeter(Values.sMeter));
+                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.sMeter(Values.sMeter));
                                 Values.signalNoice = text;
                             }
                             break;
                         case string a when text.Contains(VARAResult.cqFrame):
-                            await updateFromModemTextBoxAsync(text);
+                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             await updateLastHeardAsync(text);
                             break;
                         default:
-                            if (text.Contains("BUFFER"))
+                            if (text.Contains("BUFFER "))
                             {
-                                await updateFromModemTextBoxAsync(text);
+                                await updateFromModemTextBoxAsync(Values.incomming + text);
+                                string buffer = text.Remove(0, 7);
+                                int bufferSize = int.Parse(buffer);
+                                Values.sendBuffer = bufferSize;
                                 break;
                             }
-                            else if (text.Contains("CONNECTED"))
+                            else if (text.Contains("CONNECTED "))
                             {
-                                await updateFromModemTextBoxAsync(text);
+                                await updateFromModemTextBoxAsync(Values.incomming + text);
                                 enableButtonsStationConnected();
                                 if (!Values.outGoingConnection)
                                 {
@@ -329,7 +342,7 @@ namespace VarAQT
                                 }
                                 break;
                             }
-                            richTextBox1.Invoke(UpdateRichTextBox, text);
+                            richTextBox1.Invoke(UpdateRichTextBoxDeligate, text + "\r\n" , Color.DarkRed);
 
                             break;
                     }
@@ -379,27 +392,29 @@ namespace VarAQT
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             sendTextTextBox.Text = _data;
         }
-        private void updateSendToModemTextBox(string _data)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            sendToModemTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " " + _data + Environment.NewLine);
-            sendToModemTextBox.SelectionStart = sendToModemTextBox.Text.Length;
-            sendToModemTextBox.ScrollToCaret();
-        }
+        //private void updateSendToModemTextBox(string _data)
+        //{
+        //    Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+        //    sendToModemTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " <- " + _data + Environment.NewLine);
+        //    sendToModemTextBox.SelectionStart = sendToModemTextBox.Text.Length;
+        //    sendToModemTextBox.ScrollToCaret();
+        //}
         private async Task updateLastHeardAsync(string text)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             await Task.Run(() =>
             {
-                string remove = text.Remove(0, 8);
-                string replace = remove.Replace(" 500", "");
-                string beacon = replace.Replace(" ", "");
-
-
+                string remove = text.Remove(0, 8); // Remove CQ Frame
+                string replace = remove.Replace(" 500", ""); // Remove the BW 500
+                string beacon = replace.Replace(" ", ""); // Remove spaces if any.
+                // split the callsign from the ID
+                string[] ids = beacon.Split('-');
+                string beaconCallSign = ids[0];
+                string beaconSign = ids[1];
 
                 dataGridView1.Invoke(new Action(delegate ()
                 {
-                    string search = beacon;
+                    string search = beaconCallSign;
                     int rowIndex = -1;
                     int count = 1;
                     foreach (DataGridViewRow rows in dataGridView1.Rows)
@@ -407,16 +422,16 @@ namespace VarAQT
                         if (rows.Cells[1].Value.ToString().Equals(search))
                         {
                             rowIndex = rows.Index;
-                            string counter = rows.Cells[3].Value.ToString();
+                            string counter = rows.Cells[4].Value.ToString();
                             count = int.Parse(counter);
                             count++;
                             dataGridView1.Rows.RemoveAt(rowIndex);
                             break;
                         }
                     }
-                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beacon, Functions.sNMeter(Values.signalNoice), count, Functions.sMeter(Values.sMeter));
+                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beaconCallSign, beaconSign , Functions.sNMeter(Values.signalNoice), count, Functions.sMeter(Values.sMeter));
 
-                    lastHeard.Add(new stations { UTCTime = DateTime.UtcNow.ToString(), Call = beacon, SNR = Functions.sNMeter(Values.signalNoice), SM = Functions.sMeter(Values.sMeter), Cnt = count.ToString() });
+                    lastHeard.Add(new stations { UTCTime = DateTime.UtcNow.ToString(), Call = beaconCallSign, SID = beaconSign, SNR = Functions.sNMeter(Values.signalNoice), SM = Functions.sMeter(Values.sMeter), Cnt = count.ToString() });
 
 
                     dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -424,6 +439,7 @@ namespace VarAQT
                     dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     dataGridView1.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                     {
                         // Store Auto Sized Widths:
@@ -451,17 +467,20 @@ namespace VarAQT
         private void enableButtonsRegistered()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            connectToVaraButton.Invoke((MethodInvoker)delegate { connectToVaraButton.Enabled = false; });
-            disconnectFromVaraButton.Invoke((MethodInvoker)delegate { disconnectFromVaraButton.Enabled = true; });
-            sendBeaconTimerButton.Invoke((MethodInvoker)delegate { sendBeaconTimerButton.Enabled = true; });
-            sendBeaconNowButton.Invoke((MethodInvoker)delegate { sendBeaconNowButton.Enabled = true; });
-            button5.Invoke((MethodInvoker)delegate { button5.Enabled = true; });
-            button6.Invoke((MethodInvoker)delegate { button6.Enabled = true; });
-            stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
-            sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = false; });
-            connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = true; });
-            disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = false; });
-            abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = false; });
+            if (!Values.stationConnected)
+            {
+                connectToVaraButton.Invoke((MethodInvoker)delegate { connectToVaraButton.Enabled = false; });
+                disconnectFromVaraButton.Invoke((MethodInvoker)delegate { disconnectFromVaraButton.Enabled = true; });
+                sendBeaconTimerButton.Invoke((MethodInvoker)delegate { sendBeaconTimerButton.Enabled = true; });
+                sendBeaconNowButton.Invoke((MethodInvoker)delegate { sendBeaconNowButton.Enabled = true; });
+                button5.Invoke((MethodInvoker)delegate { button5.Enabled = true; });
+                button6.Invoke((MethodInvoker)delegate { button6.Enabled = true; });
+                stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
+                sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = false; });
+                connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = true; });
+                disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = false; });
+                abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = false; });
+            }
         }
         private void enableButtonsStationConnected()
         {
@@ -522,12 +541,114 @@ namespace VarAQT
         private void OnDataRecieved(string data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            richTextBox1.Invoke(UpdateRichTextBox, data);
+            richTextBox1.Invoke(UpdateRichTextBoxDeligate, data, Color.DarkBlue);
+            string error = "<ERR> Not supported!";
+            // recieved tag handeling
+            switch (data)
+            {
+                case string a when data.Contains(RecievedTag.signal): //  = "<R";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<R" + Values.signalNoice + ">");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.fullcall): //  = "<FC:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.name): //  = "<NAME:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qth): //  = "<QTH:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.locator): //  = "<LOC:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.callsign): // = "<CALL>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, Values.callSign);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.namerequest): // = "<NAME>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<NAME:" + Values.name + ">");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qthrequest): //  = "<QTH>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<QTH:" + Values.QTH + ">");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.locatorrequest): //  = "<LOC>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<LOC:" + Values.grid + ">");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.rig): //  = "<RIG>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, Values.rig);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.antenna): //  = "<ANT>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.hcall): //  = "<HCALL>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.hname): //  = "<HNAME>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.hqth): //  = "<HQTH>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.hlocator): //  = "<HLOC>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.lastheard): //  = "<LHR>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qsyu): //  = "<QSYU>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qsyd): //  = "<QSYD>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.version): //  = "<VER>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.version);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.info): //  = "<INFO>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.snrrequest): //  = "<SNRR>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.away): //  = "<AWAY>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "I am sorry you are away.");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.disconnect): //  = "<DISC>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.disconnect);
+                    sendText();
+                    break;
+            }
+
         }
-        private void updateRichTextBox(string _data)
+        private void updateRichTextBox(string _data, Color color)
         {
             Log.Info(_data.ToString());
+            richTextBox1.SelectionStart = richTextBox1.TextLength;
+            richTextBox1.SelectionLength = 0;
+            richTextBox1.SelectionColor = color;
             richTextBox1.AppendText(_data);
+            richTextBox1.SelectionColor = richTextBox1.ForeColor;
             richTextBox1.SelectionStart = richTextBox1.Text.Length;
             richTextBox1.ScrollToCaret();
         }
@@ -551,7 +672,6 @@ namespace VarAQT
                 this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = SystemColors.Control));
             }
         }
-
         private void connectToVaraModem()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -598,7 +718,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.chatON))
                 {
-                    updateSendToModemTextBox(VaraCMD.chatON);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.chatON);
                 }
                 else
                 {
@@ -622,7 +742,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.listenON))
                 {
-                    updateSendToModemTextBox(VaraCMD.listenON);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.listenON);
                 }
                 else
                 {
@@ -645,7 +765,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.listenCQ))
                 {
-                    updateSendToModemTextBox(VaraCMD.listenCQ);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.listenCQ);
                 }
                 else
                 {
@@ -668,7 +788,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw500))
                 {
-                    updateSendToModemTextBox(VaraCMD.bw500);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw500);
                 }
                 else
                 {
@@ -691,7 +811,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw2300))
                 {
-                    updateSendToModemTextBox(VaraCMD.bw2300);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw2300);
                 }
                 else
                 {
@@ -714,7 +834,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw2750))
                 {
-                    updateSendToModemTextBox(VaraCMD.bw2750);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw2750);
                 }
                 else
                 {
@@ -737,7 +857,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.myCall(call)))
                 {
-                    updateSendToModemTextBox(VaraCMD.myCall(call));
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.myCall(call));
                 }
                 else
                 {
@@ -753,7 +873,6 @@ namespace VarAQT
                 updateRecievedFromModemTextBox("Error : " + ex.ToString());
             }
         }
-
         private void sendBeacon()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -762,7 +881,7 @@ namespace VarAQT
                 {
                     if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.callSign + "-9 500\r"))
                     {
-                        updateSendToModemTextBox("CQFRAME " + Values.callSign + "-9 500\r");
+                        updateRecievedFromModemTextBox(Values.outgoing + "CQFRAME " + Values.callSign + "-9 500\r");
                         Log.Info("CQFRAME " + Values.callSign + "-9 500\r");
                     }
                     else
@@ -779,7 +898,6 @@ namespace VarAQT
                     updateRecievedFromModemTextBox("Error : " + ex.ToString());
                 }
         }
-
         private void connectToStation(string callToConnect)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -787,7 +905,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.connect(Values.callSign, callToConnect)))
                 {
-                    updateSendToModemTextBox(VaraCMD.connect(Values.callSign, callToConnect));
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.connect(Values.callSign, callToConnect));
                     Values.outGoingConnection = true;
                 }
                 else
@@ -804,7 +922,6 @@ namespace VarAQT
                 updateRecievedFromModemTextBox("Error : " + ex.ToString());
             }
         }
-
         private void disconnectFromStation()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -812,7 +929,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.disconnect))
                 {
-                    updateSendToModemTextBox(VaraCMD.disconnect);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.disconnect);
                 }
                 else
                 {
@@ -828,7 +945,6 @@ namespace VarAQT
                 updateRecievedFromModemTextBox("Error : " + ex.ToString());
             }
         }
-
         private void abortConnectedStation()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -836,7 +952,7 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.abort))
                 {
-                    updateSendToModemTextBox(VaraCMD.abort);
+                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.abort);
                 }
                 else
                 {
@@ -861,13 +977,14 @@ namespace VarAQT
                 if (varaData.VARADataClientWrite(textToSend + "\r\n"))
                 {
                     Log.Info(textToSend);
-                    richTextBox1.Invoke(UpdateRichTextBox, textToSend);
+                    Values.sendBufferSize = textToSend.Length;
+                    Values.sendBuffer = textToSend.Length;
+                    richTextBox1.Invoke(UpdateRichTextBoxDeligate, "\r\n" + textToSend, Color.DarkRed);
                     sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "");
                 }
                 else
                 {
                     Log.Error("VARADataClientWrite (Failed) : Disconnected");
-                    //updateRecievedFromModemTextBox("VARADataClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -876,7 +993,6 @@ namespace VarAQT
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
                 Log.Error("VARADataClientWrite (Failed) : Disconnected");
-                //updateRecievedFromModemTextBox("Error : " + ex.ToString());
             }
         }
         // Send Text to Data Channel.
@@ -889,17 +1005,19 @@ namespace VarAQT
         private void setDataGrid()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            dataGridView1.ColumnCount = 5;
+            dataGridView1.ColumnCount = 6;
             dataGridView1.Columns[0].Name = "Time";
             dataGridView1.Columns[1].Name = "CallSign";
-            dataGridView1.Columns[2].Name = "SNR";
-            dataGridView1.Columns[3].Name = "Cnt";
-            dataGridView1.Columns[4].Name = "SM";
+            dataGridView1.Columns[2].Name = "SID";
+            dataGridView1.Columns[3].Name = "SNR";
+            dataGridView1.Columns[4].Name = "Cnt";
+            dataGridView1.Columns[5].Name = "SM";
             dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView1.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
             {
                 // Store Auto Sized Widths:
@@ -933,9 +1051,10 @@ namespace VarAQT
                         break;
                     }
                 }
-                lastHeard.Add(new stations { UTCTime = dateTime.ToString(), Call = station.Call, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
-                dataGridView1.Rows.Add(dateTime.ToString("HH:mm:ss"), station.Call, station.SNR, station.Cnt, station.SM);
+                lastHeard.Add(new stations { UTCTime = dateTime.ToString(), Call = station.Call, SID = station.SID, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
+                dataGridView1.Rows.Add(dateTime.ToString("HH:mm:ss"), station.Call, station.SID, station.SNR, station.Cnt, station.SM);
                 dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
+                dataGridView1.AutoResizeColumns();
             }
 
 
@@ -943,9 +1062,11 @@ namespace VarAQT
         private void setColors()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-
+            // From:
             this.BackColor = Color.FromArgb(255, 31, 31, 31);
             this.ForeColor = Color.White;
+
+            // Buttons:
             connectToVaraButton.BackColor = SystemColors.ControlDark;
             connectToVaraButton.ForeColor = Color.White;
             disconnectFromVaraButton.BackColor = SystemColors.ControlDark;
@@ -971,6 +1092,41 @@ namespace VarAQT
             button12.BackColor = SystemColors.ControlDark;
             button12.ForeColor = Color.White;
 
+            // Tool Strips:
+            toolStripStatusLabel1.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel1.ForeColor = Color.White;
+            toolStripStatusLabel2.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel2.ForeColor = Color.White;
+            toolStripStatusLabel3.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel3.ForeColor = Color.White;
+            toolStripStatusLabel4.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel4.ForeColor = Color.White;
+            toolStripStatusLabel5.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel5.ForeColor = Color.White;
+            toolStripStatusLabel6.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel6.ForeColor = Color.White;
+            toolStripStatusLabel7.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel7.ForeColor = Color.White;
+            toolStripStatusLabel8.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel8.ForeColor = Color.White;
+            toolStripStatusLabel9.BackColor = SystemColors.ControlDark;
+            toolStripStatusLabel9.ForeColor = Color.White;
+
+            // Labels:
+            label1.BackColor = SystemColors.ControlDark;
+            label1.ForeColor = Color.White;
+            label2.BackColor = SystemColors.ControlDark;
+            label2.ForeColor = Color.White;
+            label3.BackColor = SystemColors.ControlDark;
+            label3.ForeColor = Color.White;
+            label4.BackColor = SystemColors.ControlDark;
+            label4.ForeColor = Color.White;
+            label5.BackColor = SystemColors.ControlDark;
+            label5.ForeColor = Color.White;
+            label6.BackColor = SystemColors.ControlDark;
+            label6.ForeColor = Color.White;
+
+            // Data Grid
             dataGridView1.DefaultCellStyle.ForeColor = Color.White;
             dataGridView1.DefaultCellStyle.BackColor = Color.FromArgb(255, 31, 31, 31);
             dataGridView1.DefaultCellStyle.Font = new Font("Consolas", 8);
@@ -981,9 +1137,6 @@ namespace VarAQT
 
 
         }
-        
-
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -992,14 +1145,12 @@ namespace VarAQT
             System.Windows.Forms.Application.Exit();
 
         }
-
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Settings settingsForm = new Settings();
             settingsForm.Show();
         }
     }
-
 }
 
 
