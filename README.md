@@ -1,23 +1,6 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
 
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -25,14 +8,12 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Dorbain/VarAQT">
+<!--  <a href="https://github.com/Dorbain/VarAQT">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
+  </a> -->
 
 <h3 align="center">VarAQT</h3>
 
@@ -42,15 +23,13 @@
     <a href="https://github.com/Dorbain/VarAQT"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <!--<a href="https://github.com/Dorbain/VarAQT">View Demo</a>-->
+    <!-- <a href="https://github.com/Dorbain/VarAQT">View Demo</a> -->
     ·
     <a href="https://github.com/Dorbain/VarAQT/issues">Report Bug</a>
     ·
     <a href="https://github.com/Dorbain/VarAQT/issues">Request Feature</a>
   </p>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -78,18 +57,16 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `Dorbain`, `VarAQT`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `VarAQT`, `Another VARA chat application for the Amateur Radio World.`
+Another VARA chat application, based on the great work of [EA5HVK](https://rosmodem.wordpress.com/) and his Weak signals Software modem VARA HF.
+
+VarAQT is a opensource project and therefor I encourage your input by helping the community with building an great tool.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
@@ -99,17 +76,18 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This is a work in progress therefor a download or installer does not exist.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
+To be able to use this application make sure you have installed VARA as well.
+* VARA HF v4.6.4
+  ```sh
+  VARA setup [https://rosmodem.wordpress.com/](https://mega.nz/file/CeRzHAiB#rCymVE8GunRVGz1vXCR5DybHWgIYYGAekqueyu-k_DY)
+  ```
 * .NET Framework 4.8 Runtime
   ```sh
   npd48-web.exe
@@ -117,6 +95,9 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
+Will be added later.
+When the debug builds get more stability.
+<!--
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
@@ -130,17 +111,15 @@ This is an example of how to list things you need to use the software and how to
    ```js
    const API_KEY = 'ENTER YOUR API';
    ```
-
+   -->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Currently only supporting the direct CAT connection to a YAESU FTdx10. More will be added later.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+<!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -149,10 +128,13 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Settings.
+- [ ] Multi Language support.
+- [ ] Logging to HRD Log or other logging programs.
+- [ ] reporting to pskreporter.
+- [ ] Supporting more radio's including OmniRig and HRD.
+- [ ] Handle Tag's
+    - [ ] <ANYTHING>
 
 See the [open issues](https://github.com/Dorbain/VarAQT/issues) for a full list of proposed features (and known issues).
 
@@ -190,7 +172,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Your Name - [@Chris_Wolters76](https://twitter.com/Chris_Wolters76) - chris.wolters@outlook.com
 
 Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/VarAQT)
 
@@ -201,7 +183,7 @@ Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/Var
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
+* [PD1AQT](Chris Wolters)
 * []()
 * []()
 
@@ -227,7 +209,7 @@ Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/Var
 [dotnet]: https://img.shields.io/badge/dotnet%20version-NET%20Framework%204.8-blue
 [dotnet-url]: https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48
 
-[Csharp]: https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=c-sharp&logoColor=white
+[Csharp]: https://img.shields.io/badge/C%23%20version-C%23%207.3-green
 [Csharp-url]: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-version-history
 <!--
 [Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
