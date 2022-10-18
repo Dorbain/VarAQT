@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="VarAQT.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CallSign" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PD1AQT</Value>
+    </Setting>
+    <Setting Name="VaraCommandClientIP" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="VaraCommandClientPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8300</Value>
+    </Setting>
+    <Setting Name="VaraKissClientPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8100</Value>
+    </Setting>
+    <Setting Name="GridLocator" Type="System.String" Scope="User">
+      <Value Profile="(Default)">JO22OI</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
