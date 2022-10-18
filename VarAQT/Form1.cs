@@ -54,6 +54,8 @@ namespace VarAQT
         public Form1()
         {
             InitializeComponent();
+            Log.enableDebug = true;
+            Log.enableInfo = true;
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             UpdateFromModemTextBoxDeligate = new AddLogDeligate(updateRecievedFromModemTextBox);
             UpdateSendToModemTextBoxDeligate = new AddLogDeligate(updateSendToModemTextBox);
@@ -61,11 +63,9 @@ namespace VarAQT
             UpdateSendTextTextBoxDeligate = new AddLogDeligate(updateSendTextTextBox);
             UpdateRichTextBox = new AddLogDeligate(updateRichTextBox);
             UpdateDataGridDeligate = new AddLogDeligate(updateLastHeardDataGrid);
-            Log.enableDebug = true;
-            Log.enableInfo = true;
             //UpdateStatusIcons = new AddNotificationDelegate(UpdateSatusIcons);
             timer1.Interval = 100;
-            timer2.Interval = 300000; //60000 = 1 minuut, 300000 = 5 minuten ;
+            beaconTimer.Interval = 300000; //60000 = 1 minuut, 300000 = 5 minuten ;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -76,7 +76,7 @@ namespace VarAQT
             setDataGrid();
             disableButtonsDisconnected();
             timer1.Start();
-            connectToVara();
+            connectToVaraModem();
             bw500();
             listenON();
             chatOn();
@@ -88,17 +88,18 @@ namespace VarAQT
         #endregion
 
         #region Buttons
-        // VARADataClientConnect Button
+        // Connect to VARA modem Button
         private void button1_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            connectToVara();
+            connectToVaraModem();
             bw500();
             listenON();
             listenCQ();
             chatOn();
             myCall(Values.callSign);
         }
+        // Disconnect to VARA modem Button
         private void button2_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -106,7 +107,7 @@ namespace VarAQT
             varaData.VARADataClientDisconnect();
             disableButtonsDisconnected();
         }
-        // Send Beacon Button
+        // Start Beacon Timer Button
         private void button3_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -114,173 +115,86 @@ namespace VarAQT
             {
                 case true:
                     Values.beaconActive = false;
-                    timer2.Stop();
+                    beaconTimer.Stop();
                     sendBeaconTimerButton.BackColor = Color.DarkSeaGreen;
                     break;
                 case false:
                     Values.beaconActive = true;
-                    timer2.Start();
+                    beaconTimer.Start();
                     sendBeaconTimerButton.BackColor = Color.DarkRed;
                     break;
             }
         }
+        // Send Beacon Now Button
         private void button4_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            if (!Values.busy)
-                try
-                {
-                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.callSign + "-9 500\r"))
-                    {
-                        updateSendToModemTextBox("CQFRAME " + Values.callSign + "-9 500\r");
-                    }
-                    else
-                    {
-                        Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                        updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Catch errors in Sending Data
-                    Log.Error(ex.ToString());
-                    Log.Error(ex.Message.ToString());
-                    updateRecievedFromModemTextBox("Error : " + ex.ToString());
-                }
+            sendBeacon();
         }
+        // Set BandWidth to 2300 Button (Will be used for something else)
         private void button5_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             bw2300();
 
         }
+        // Spare Button (Now saves the LastHeard list to a XML file)
         private void button6_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             addLastHeardFileToDataGrid();
 
         }
+        // Stop beacon and TX Button
         private void button7_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             RigControl.disableTX().ConfigureAwait(false);
-            timer2.Stop();
+            beaconTimer.Stop();
         }
+        // Send Text to Modem on Data channel Button
         private void button8_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             sendText();
 
         }
-        // connect to Call
+        // connect to station Button
         private void button9_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             string callToConnect = callSignTextBox.Text.ToString();
-            try
-            {
-                if (varaCmd.VARACommandClientWrite(VaraCMD.connect(Values.callSign, callToConnect)))
-                {
-                    updateSendToModemTextBox(VaraCMD.connect(Values.callSign, callToConnect));
-                    Values.outGoingConnection = true;
-                }
-                else
-                {
-                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Catch errors in Sending Data
-                Log.Error(ex.ToString());
-                Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
-            }
-
-
-
+            connectToStation(callToConnect);
         }
+        // Disconnect from station Button
         private void button10_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            try
-            {
-                if (varaCmd.VARACommandClientWrite(VaraCMD.disconnect))
-                {
-                    updateSendToModemTextBox(VaraCMD.disconnect);
-                }
-                else
-                {
-                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Catch errors in Sending Data
-                Log.Error(ex.ToString());
-                Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
-            }
+            disconnectFromStation();
         }
+        // Abort the connection Button
         private void button11_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            try
-            {
-                if (varaCmd.VARACommandClientWrite(VaraCMD.abort))
-                {
-                    updateSendToModemTextBox(VaraCMD.abort);
-                }
-                else
-                {
-                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Catch errors in Sending Data
-                Log.Error(ex.ToString());
-                Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
-            }
+            abortConnectedStation();
         }
         private void button12_Click(object sender, EventArgs e)
         {
-            WriteXML<stations>(lastHeard, "LastHeard.xml");
+            Functions.WriteXML<stations>(lastHeard, "LastHeard.xml");
         }
         #endregion
 
         #region Timers
+        // timer1 updates the clock on the status strip. can be used for recuring things.
         private void timer1_Tick(object sender, EventArgs e)
         {
             toolStripStatusLabel7.Text = "UTC: " + DateTime.UtcNow.ToString("HH:mm:ss");
         }
+        // send beacon timer.
         private void timer2_Tick(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            if (!Values.busy)
-                try
-                {
-                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.callSign + "-9 500\r"))
-                    {
-                        updateSendToModemTextBox("CQFRAME " + Values.callSign + "-9 500\r");
-                    }
-                    else
-                    {
-                        Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                        updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Catch errors in Sending Data
-                    Log.Error(ex.ToString());
-                    Log.Error(ex.Message.ToString());
-                    updateRecievedFromModemTextBox("Error : " + ex.ToString());
-                }
+            sendBeacon();
         }
         #endregion
 
@@ -304,7 +218,7 @@ namespace VarAQT
                     break;
             }
         }
-        // Data Recieved Listner
+        // VARA Command channel Recieved Listner
         public async void OnCommandRecieved(string data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -480,9 +394,9 @@ namespace VarAQT
                 string remove = text.Remove(0, 8);
                 string replace = remove.Replace(" 500", "");
                 string beacon = replace.Replace(" ", "");
-                //dataGridView1.Rows.Add(LastTime, CallSign, Signal, HeardCount);
-                //addDataGrid.Invoke(DateTime.NowUtc, callsign, "-1", 1);
-                //sendTextTextBox.Invoke(UpdateDataGridDeligate, text);
+
+
+
                 dataGridView1.Invoke(new Action(delegate ()
                 {
                     string search = beacon;
@@ -500,15 +414,16 @@ namespace VarAQT
                             break;
                         }
                     }
-                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beacon, Functions.sNMeter(Values.signalNoice), count);
+                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beacon, Functions.sNMeter(Values.signalNoice), count, Functions.sMeter(Values.sMeter));
 
-                    lastHeard.Add(new stations { UTCTime = DateTime.UtcNow.ToString(), Call = beacon, SNR = Functions.sNMeter(Values.signalNoice), Cnt = count.ToString() });
+                    lastHeard.Add(new stations { UTCTime = DateTime.UtcNow.ToString(), Call = beacon, SNR = Functions.sNMeter(Values.signalNoice), SM = Functions.sMeter(Values.sMeter), Cnt = count.ToString() });
 
 
                     dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                     {
                         // Store Auto Sized Widths:
@@ -583,7 +498,7 @@ namespace VarAQT
             abortConnectionButton.Enabled = false;
             Values.stationConnected = false;
         }
-        // Connection Status Listner
+        // VARA DATA Channel connected.
         private void OnDataConnect(bool status)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -603,7 +518,7 @@ namespace VarAQT
                     break;
             }
         }
-        // Data Recieved Listner
+        // VARA DATA channel Recieved Listner
         private void OnDataRecieved(string data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -636,8 +551,8 @@ namespace VarAQT
                 this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = SystemColors.Control));
             }
         }
-        // VARADataClientDisconnect Button
-        private void connectToVara()
+
+        private void connectToVaraModem()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             // Opening Command TCP client
@@ -838,6 +753,105 @@ namespace VarAQT
                 updateRecievedFromModemTextBox("Error : " + ex.ToString());
             }
         }
+
+        private void sendBeacon()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            if (!Values.busy)
+                try
+                {
+                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.callSign + "-9 500\r"))
+                    {
+                        updateSendToModemTextBox("CQFRAME " + Values.callSign + "-9 500\r");
+                        Log.Info("CQFRAME " + Values.callSign + "-9 500\r");
+                    }
+                    else
+                    {
+                        Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                        updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Catch errors in Sending Data
+                    Log.Error(ex.ToString());
+                    Log.Error(ex.Message.ToString());
+                    updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                }
+        }
+
+        private void connectToStation(string callToConnect)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            try
+            {
+                if (varaCmd.VARACommandClientWrite(VaraCMD.connect(Values.callSign, callToConnect)))
+                {
+                    updateSendToModemTextBox(VaraCMD.connect(Values.callSign, callToConnect));
+                    Values.outGoingConnection = true;
+                }
+                else
+                {
+                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Sending Data
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+            }
+        }
+
+        private void disconnectFromStation()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            try
+            {
+                if (varaCmd.VARACommandClientWrite(VaraCMD.disconnect))
+                {
+                    updateSendToModemTextBox(VaraCMD.disconnect);
+                }
+                else
+                {
+                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Sending Data
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+            }
+        }
+
+        private void abortConnectedStation()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            try
+            {
+                if (varaCmd.VARACommandClientWrite(VaraCMD.abort))
+                {
+                    updateSendToModemTextBox(VaraCMD.abort);
+                }
+                else
+                {
+                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Sending Data
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+            }
+        }
         private void sendText()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -875,42 +889,52 @@ namespace VarAQT
         private void setDataGrid()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            dataGridView1.ColumnCount = 4;
+            dataGridView1.ColumnCount = 5;
             dataGridView1.Columns[0].Name = "Time";
             dataGridView1.Columns[1].Name = "CallSign";
             dataGridView1.Columns[2].Name = "SNR";
             dataGridView1.Columns[3].Name = "Cnt";
+            dataGridView1.Columns[4].Name = "SM";
             dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView1.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
             {
                 // Store Auto Sized Widths:
                 int colw = dataGridView1.Columns[i].Width;
-
                 // Remove AutoSizing:
                 dataGridView1.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-
                 // Set Width to calculated AutoSize value:
                 dataGridView1.Columns[i].Width = colw;
             }
             dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
             dataGridView1.AutoResizeColumns();
-
         }
         private void addLastHeardFileToDataGrid()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             List<stations> fromfile = new List<stations>();
 
-            fromfile = ReadXML<stations>("LastHeard.xml");
+            fromfile = Functions.ReadXML<stations>("LastHeard.xml");
 
             foreach (var station in fromfile)
             {
                 DateTime dateTime = DateTime.ParseExact(station.UTCTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-                lastHeard.Add(new stations { UTCTime = dateTime.ToString(), Call = station.Call, SNR = station.SNR, Cnt = station.Cnt });
-                dataGridView1.Rows.Add(dateTime.ToString("HH:mm:ss"), station.Call, station.SNR, station.Cnt);
+                string search = station.Call;
+                int rowIndex = -1;
+                foreach (DataGridViewRow rows in dataGridView1.Rows)
+                {
+                    if (rows.Cells[1].Value.ToString().Equals(search))
+                    {
+                        rowIndex = rows.Index;
+                        dataGridView1.Rows.RemoveAt(rowIndex);
+                        break;
+                    }
+                }
+                lastHeard.Add(new stations { UTCTime = dateTime.ToString(), Call = station.Call, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
+                dataGridView1.Rows.Add(dateTime.ToString("HH:mm:ss"), station.Call, station.SNR, station.Cnt, station.SM);
                 dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
             }
 
@@ -957,39 +981,13 @@ namespace VarAQT
 
 
         }
-        public void WriteXML<T>(List<T> list, string filename)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            string filePath = filename;
-            XmlSerializer serializer = new XmlSerializer(typeof(List<T>));
-            using (TextWriter tw = new StreamWriter(filePath, append: false))
-            {
-                serializer.Serialize(tw, list);
-                tw.Close();
-            }
-        }
-        public List<T> ReadXML<T>(string filename)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            string filePath = filename;
-            List<T> result;
-            if (!File.Exists(filePath))
-            {
-                return new List<T>();
-            }
+        
 
-            XmlSerializer ser = new XmlSerializer(typeof(List<T>));
-            using (FileStream myFileStream = new FileStream(filePath, FileMode.Open))
-            {
-                result = (List<T>)ser.Deserialize(myFileStream);
-            }
-            return result;
-        }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            WriteXML<stations>(lastHeard, "LastHeard.xml");
+            Functions.WriteXML<stations>(lastHeard, "LastHeard.xml");
             //this.Close();
             System.Windows.Forms.Application.Exit();
 

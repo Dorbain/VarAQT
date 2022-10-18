@@ -18,9 +18,10 @@ namespace VarAQT.Models
         public string UTCTime { get; set; }
         [XmlElement("Call")]
         public string Call { get; set; }
-
         [XmlElement("SNR")]
         public string SNR { get; set; }
+        [XmlElement("SM")]
+        public string SM { get; set; }
         [XmlElement("Cnt")]
         public string Cnt { get; set; }
     }

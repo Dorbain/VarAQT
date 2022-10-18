@@ -44,6 +44,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
+        <li><a href="#requirements">Requirements</a></li>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
@@ -62,9 +63,14 @@
 
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
-Another VARA chat application, based on the great work of [EA5HVK](https://rosmodem.wordpress.com/) and his Weak signals Software modem VARA HF.
+VarAQT - Another Windows Forms VARA chat application.
+Based on the great work of [EA5HVK](https://rosmodem.wordpress.com/) and his Weak signals Software modem VARA HF.
 
-VarAQT is a opensource project and therefor I encourage your input by helping the community with building an great tool.
+Radio amateurs represent a community of individuals around the entire globe, with sharing a common interest for redioelectricity and telecommunications by shortwaves.
+Many radio amateurs build their own antenna's and or their own trancievers. 
+
+Therefor VarAQT is a opensource project and I encourage you to participate by helping the community with building this great tool.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -83,15 +89,41 @@ This is a work in progress therefor a download or installer does not exist.
 
 ### Prerequisites
 
-To be able to use this application make sure you have installed VARA as well.
+To be able to use this application make sure you have installed VARA HF as well.
 * VARA HF v4.6.4
   ```sh
-  VARA setup [https://rosmodem.wordpress.com/](https://mega.nz/file/CeRzHAiB#rCymVE8GunRVGz1vXCR5DybHWgIYYGAekqueyu-k_DY)
+  VARA HF setup 
   ```
+  Download: [VARA HF](https://mega.nz/file/CeRzHAiB#rCymVE8GunRVGz1vXCR5DybHWgIYYGAekqueyu-k_DY)
+
 * .NET Framework 4.8 Runtime
   ```sh
   npd48-web.exe
   ```
+  Download: [.NET 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48)
+
+### Requirements
+
+* Amateur radio requirements
+```sh
+ An official license to use a radio to legaly transmit signals on HAM radio assigned frequencies.
+```
+ 
+* Minimum hardware requirements
+```sh
+- Processor - 1 Ghz
+- RAM - 1024 MB
+- Minimum disk space (32-bits) - 5 GB
+```
+
+* Supported 32 bits operating systems
+```sh
+- Microsoft® Windows 7
+- Microsoft® Windows 8
+- Microsoft® Windows 8.1
+- Microsoft® Windows 10
+- Microsoft® Windows 11
+```
 
 ### Installation
 
@@ -172,7 +204,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@Chris_Wolters76](https://twitter.com/Chris_Wolters76) - chris.wolters@outlook.com
+Name - [@Chris_Wolters76](https://twitter.com/Chris_Wolters76) - chris.wolters@outlook.com
 
 Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/VarAQT)
 
@@ -183,7 +215,7 @@ Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/Var
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [PD1AQT](Chris Wolters)
+* [PD1AQT](https://www.qrz.com/db/PD1AQT)
 * []()
 * []()
 
