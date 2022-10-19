@@ -39,7 +39,7 @@ namespace VaraLib
         private Socket socket;
         private byte[] readerBuffer = new byte[256];
 
-        private string ClassName = "VaraLibData";
+        private string ClassName = "VaraDataClient";
 
         // *** Methods *** //
 
@@ -53,6 +53,7 @@ namespace VaraLib
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             ipAddress = IPAddress.Parse(_ip);
             port = _port;
+            Log.Info(_ip + ":" + port, ClassName);
         }
 
         public void VARADataClientConnect()
@@ -106,18 +107,18 @@ namespace VaraLib
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             Socket _socket = (Socket)ar.AsyncState;
-
             try
             {
                 if (_socket.Connected)
                 {
                     SetupRecieveVARADataClientCallback(_socket);
                     OnConnectEvent(true);
+                    Log.Info("Socket Connection established", ClassName);
                 }
                 else
                 {
                     OnConnectEvent(false);
-                    throw new Exception("Cannot Establish the Socket Connection");
+                    Log.Error("Cannot Establish the Socket Connection", ClassName);
                 }
             }
             catch (Exception ex)
@@ -142,7 +143,6 @@ namespace VaraLib
                 VARADataClientDispose();
                 Log.Error(ex.ToString(), ClassName);
                 Log.Error(ex.Message.ToString(), ClassName);
-                //throw new Exception("Recieve Callback Setup Failed " + ex.ToString());
             }
         }
 
@@ -216,7 +216,6 @@ namespace VaraLib
                     VARADataClientDispose();
                     Log.Error(ex.ToString(), ClassName);
                     Log.Error(ex.Message.ToString(), ClassName);
-                    //throw new Exception("Data Writing Operation Failed " + ex.ToString());
                     return false;
                 }
             }
@@ -260,7 +259,7 @@ namespace VaraLib
         /// <summary>
         /// Close the Socket Connection
         /// </summary>
-        public void VARADataClientDispose()
+        private void VARADataClientDispose()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             if (socket != null && socket.Connected)

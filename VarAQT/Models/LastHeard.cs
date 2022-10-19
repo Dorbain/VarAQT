@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 namespace VarAQT.Models
 {
     [XmlRoot("LastHeard")]
-    public class stations
+    public class station
     {
         [XmlElement("UTCTime")]
         public string UTCTime { get; set; }

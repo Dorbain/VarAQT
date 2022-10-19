@@ -17,12 +17,14 @@ using System.IO;
 //using VaraCommand;
 using VaraLib;
 using System.Xml.Serialization;
+using VarAQT.Models;
+using System.Runtime.ConstrainedExecution;
 
 namespace VarAQT
 {
     public static class Functions
     {
-        public static string frequency(string text)
+        public static string Frequency(string text)
         {
             char[] remove = { ';', 'F', 'A', 'B' };
             text = text.Trim(remove);
@@ -30,21 +32,32 @@ namespace VarAQT
             text = text.Insert(7, ".");
             return text;
         }
-        public static string sMeter(string text)
+
+        /// <summary>
+        /// Removes the S,M and ; from the string.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string Smeter(string text)
         {
             char[] remove = { ';', 'S', 'M' };
             text = text.Trim(remove);
             return text;
         }
 
-        public static string sNMeter(string text)
+        /// <summary>
+        /// Removes the S,N etc. from the string.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string Snmeter(string text)
         {
-            char[] remove = { ' ', ',', '.', 'S', 'N', ',' };
+            char[] remove = { ' ', ',', '.', 'S', 'N' };
             text = text.Trim(remove);
             return text;
         }
 
-        public static void WriteXML<T>(List<T> list, string filename)
+        public static void WriteLastHeardXML<T>(List<T> list, string filename)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             string filePath = filename;
@@ -57,7 +70,7 @@ namespace VarAQT
         }
 
 
-        public static List<T> ReadXML<T>(string filename)
+        public static List<T> ReadLastHeardXML<T>(string filename)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             string filePath = filename;
@@ -71,6 +84,34 @@ namespace VarAQT
             using (FileStream myFileStream = new FileStream(filePath, FileMode.Open))
             {
                 result = (List<T>)ser.Deserialize(myFileStream);
+            }
+            return result;
+        }
+
+        public static void WriteStationDetailsXML(StationDetails stationDetails)
+        {
+            XmlSerializer writer = new XmlSerializer(typeof(StationDetails));
+            var path = "StationDetails.xml";
+            FileStream file = File.Create(path);
+            writer.Serialize(file, stationDetails);
+            file.Close();
+        }
+
+        public static StationDetails readStationDetailsXML()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            StationDetails result = new StationDetails();
+            XmlSerializer reader = new XmlSerializer(typeof(StationDetails));
+            var filePath = "StationDetails.xml";
+
+            if (!File.Exists(filePath))
+            {
+                return new StationDetails();
+            }
+
+            using (FileStream myFileStream = new FileStream(filePath, FileMode.Open))
+            {
+                result = (StationDetails)reader.Deserialize(myFileStream);
             }
             return result;
         }

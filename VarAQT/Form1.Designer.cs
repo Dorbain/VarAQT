@@ -49,6 +49,7 @@
             this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.stopTxNowButton = new System.Windows.Forms.Button();
             this.beaconTimer = new System.Windows.Forms.Timer(this.components);
@@ -61,7 +62,7 @@
             this.abortConnectionButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.sendTextTextBox = new System.Windows.Forms.TextBox();
-            this.sendToModemTextBox = new System.Windows.Forms.TextBox();
+            this.fromMonitorTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -80,9 +81,9 @@
             // 
             // connectToVaraButton
             // 
-            this.connectToVaraButton.Location = new System.Drawing.Point(12, 27);
+            this.connectToVaraButton.Location = new System.Drawing.Point(0, 32);
             this.connectToVaraButton.Name = "connectToVaraButton";
-            this.connectToVaraButton.Size = new System.Drawing.Size(134, 23);
+            this.connectToVaraButton.Size = new System.Drawing.Size(135, 20);
             this.connectToVaraButton.TabIndex = 0;
             this.connectToVaraButton.Text = "Connect to VARA";
             this.connectToVaraButton.UseVisualStyleBackColor = true;
@@ -93,7 +94,7 @@
             this.fromModemTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.fromModemTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fromModemTextBox.ForeColor = System.Drawing.Color.White;
-            this.fromModemTextBox.Location = new System.Drawing.Point(152, 56);
+            this.fromModemTextBox.Location = new System.Drawing.Point(144, 56);
             this.fromModemTextBox.Multiline = true;
             this.fromModemTextBox.Name = "fromModemTextBox";
             this.fromModemTextBox.ReadOnly = true;
@@ -103,9 +104,9 @@
             // 
             // disconnectFromVaraButton
             // 
-            this.disconnectFromVaraButton.Location = new System.Drawing.Point(12, 53);
+            this.disconnectFromVaraButton.Location = new System.Drawing.Point(0, 58);
             this.disconnectFromVaraButton.Name = "disconnectFromVaraButton";
-            this.disconnectFromVaraButton.Size = new System.Drawing.Size(134, 23);
+            this.disconnectFromVaraButton.Size = new System.Drawing.Size(135, 20);
             this.disconnectFromVaraButton.TabIndex = 2;
             this.disconnectFromVaraButton.Text = "Disconnect from VARA";
             this.disconnectFromVaraButton.UseVisualStyleBackColor = true;
@@ -113,9 +114,9 @@
             // 
             // sendBeaconTimerButton
             // 
-            this.sendBeaconTimerButton.Location = new System.Drawing.Point(12, 82);
+            this.sendBeaconTimerButton.Location = new System.Drawing.Point(0, 84);
             this.sendBeaconTimerButton.Name = "sendBeaconTimerButton";
-            this.sendBeaconTimerButton.Size = new System.Drawing.Size(134, 23);
+            this.sendBeaconTimerButton.Size = new System.Drawing.Size(135, 20);
             this.sendBeaconTimerButton.TabIndex = 3;
             this.sendBeaconTimerButton.Text = "Send Beacon 5 Minutes";
             this.sendBeaconTimerButton.UseVisualStyleBackColor = true;
@@ -123,9 +124,9 @@
             // 
             // sendBeaconNowButton
             // 
-            this.sendBeaconNowButton.Location = new System.Drawing.Point(12, 111);
+            this.sendBeaconNowButton.Location = new System.Drawing.Point(0, 110);
             this.sendBeaconNowButton.Name = "sendBeaconNowButton";
-            this.sendBeaconNowButton.Size = new System.Drawing.Size(111, 23);
+            this.sendBeaconNowButton.Size = new System.Drawing.Size(135, 20);
             this.sendBeaconNowButton.TabIndex = 4;
             this.sendBeaconNowButton.Text = "Send Beacon NOW";
             this.sendBeaconNowButton.UseVisualStyleBackColor = true;
@@ -133,21 +134,21 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(13, 169);
+            this.button5.Location = new System.Drawing.Point(0, 162);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(85, 23);
+            this.button5.Size = new System.Drawing.Size(135, 20);
             this.button5.TabIndex = 5;
-            this.button5.Text = "Set BW2300";
+            this.button5.Text = "Send CQ";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(693, 381);
+            this.button6.Location = new System.Drawing.Point(0, 188);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 23);
+            this.button6.Size = new System.Drawing.Size(135, 20);
             this.button6.TabIndex = 6;
-            this.button6.Text = "Spare";
+            this.button6.Text = "Enable VARA Monitor";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
@@ -187,7 +188,8 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel7,
             this.toolStripStatusLabel8,
-            this.toolStripStatusLabel9});
+            this.toolStripStatusLabel9,
+            this.toolStripStatusLabel10});
             this.statusStrip1.Location = new System.Drawing.Point(0, 480);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1157, 22);
@@ -257,8 +259,15 @@
             // 
             this.toolStripStatusLabel9.ForeColor = System.Drawing.SystemColors.ControlText;
             this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
-            this.toolStripStatusLabel9.Size = new System.Drawing.Size(62, 17);
-            this.toolStripStatusLabel9.Text = "Beacon in:";
+            this.toolStripStatusLabel9.Size = new System.Drawing.Size(96, 17);
+            this.toolStripStatusLabel9.Text = "Last beacon was:";
+            this.toolStripStatusLabel9.Click += new System.EventHandler(this.toolStripStatusLabel9_Click);
+            // 
+            // toolStripStatusLabel10
+            // 
+            this.toolStripStatusLabel10.Name = "toolStripStatusLabel10";
+            this.toolStripStatusLabel10.Size = new System.Drawing.Size(36, 17);
+            this.toolStripStatusLabel10.Text = "Time.";
             // 
             // timer1
             // 
@@ -266,9 +275,9 @@
             // 
             // stopTxNowButton
             // 
-            this.stopTxNowButton.Location = new System.Drawing.Point(13, 140);
+            this.stopTxNowButton.Location = new System.Drawing.Point(0, 136);
             this.stopTxNowButton.Name = "stopTxNowButton";
-            this.stopTxNowButton.Size = new System.Drawing.Size(133, 23);
+            this.stopTxNowButton.Size = new System.Drawing.Size(135, 20);
             this.stopTxNowButton.TabIndex = 9;
             this.stopTxNowButton.Text = "Stop Beacon and TX";
             this.stopTxNowButton.UseVisualStyleBackColor = true;
@@ -303,7 +312,7 @@
             this.richTextBox1.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.richTextBox1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBox1.ForeColor = System.Drawing.Color.White;
-            this.richTextBox1.Location = new System.Drawing.Point(152, 137);
+            this.richTextBox1.Location = new System.Drawing.Point(144, 137);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.Size = new System.Drawing.Size(636, 203);
             this.richTextBox1.TabIndex = 12;
@@ -321,9 +330,9 @@
             // 
             // connectToStationButton
             // 
-            this.connectToStationButton.Location = new System.Drawing.Point(12, 415);
+            this.connectToStationButton.Location = new System.Drawing.Point(12, 416);
             this.connectToStationButton.Name = "connectToStationButton";
-            this.connectToStationButton.Size = new System.Drawing.Size(75, 23);
+            this.connectToStationButton.Size = new System.Drawing.Size(75, 20);
             this.connectToStationButton.TabIndex = 14;
             this.connectToStationButton.Text = "Connect";
             this.connectToStationButton.UseVisualStyleBackColor = true;
@@ -333,7 +342,7 @@
             // 
             this.disconnectFromStationButton.Location = new System.Drawing.Point(12, 444);
             this.disconnectFromStationButton.Name = "disconnectFromStationButton";
-            this.disconnectFromStationButton.Size = new System.Drawing.Size(75, 23);
+            this.disconnectFromStationButton.Size = new System.Drawing.Size(75, 20);
             this.disconnectFromStationButton.TabIndex = 15;
             this.disconnectFromStationButton.Text = "Disconnect";
             this.disconnectFromStationButton.UseVisualStyleBackColor = true;
@@ -353,7 +362,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label2.Location = new System.Drawing.Point(152, 32);
+            this.label2.Location = new System.Drawing.Point(141, 32);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(135, 13);
             this.label2.TabIndex = 17;
@@ -370,29 +379,29 @@
             this.sendTextTextBox.Size = new System.Drawing.Size(513, 46);
             this.sendTextTextBox.TabIndex = 18;
             // 
-            // sendToModemTextBox
+            // fromMonitorTextBox
             // 
-            this.sendToModemTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.sendToModemTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sendToModemTextBox.ForeColor = System.Drawing.Color.White;
-            this.sendToModemTextBox.Location = new System.Drawing.Point(428, 56);
-            this.sendToModemTextBox.Multiline = true;
-            this.sendToModemTextBox.Name = "sendToModemTextBox";
-            this.sendToModemTextBox.ReadOnly = true;
-            this.sendToModemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.sendToModemTextBox.Size = new System.Drawing.Size(227, 75);
-            this.sendToModemTextBox.TabIndex = 19;
+            this.fromMonitorTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.fromMonitorTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fromMonitorTextBox.ForeColor = System.Drawing.Color.White;
+            this.fromMonitorTextBox.Location = new System.Drawing.Point(420, 56);
+            this.fromMonitorTextBox.Multiline = true;
+            this.fromMonitorTextBox.Name = "fromMonitorTextBox";
+            this.fromMonitorTextBox.ReadOnly = true;
+            this.fromMonitorTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.fromMonitorTextBox.Size = new System.Drawing.Size(360, 75);
+            this.fromMonitorTextBox.TabIndex = 19;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.SystemColors.Control;
             this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label3.Location = new System.Drawing.Point(443, 32);
+            this.label3.Location = new System.Drawing.Point(417, 32);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(63, 13);
+            this.label3.Size = new System.Drawing.Size(135, 13);
             this.label3.TabIndex = 20;
-            this.label3.Text = "pskreporter:";
+            this.label3.Text = "VARA HF Monitor channel:";
             // 
             // comboBox1
             // 
@@ -426,11 +435,11 @@
             // 
             // button12
             // 
-            this.button12.Location = new System.Drawing.Point(693, 352);
+            this.button12.Location = new System.Drawing.Point(0, 214);
             this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(75, 23);
+            this.button12.Size = new System.Drawing.Size(135, 20);
             this.button12.TabIndex = 23;
-            this.button12.Text = "Spare";
+            this.button12.Text = "Retry Data channel";
             this.button12.UseVisualStyleBackColor = true;
             this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
@@ -442,7 +451,7 @@
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(794, 56);
+            this.dataGridView1.Location = new System.Drawing.Point(786, 56);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -477,9 +486,9 @@
             // 
             // sendBufferProgressBar
             // 
-            this.sendBufferProgressBar.Location = new System.Drawing.Point(351, 352);
+            this.sendBufferProgressBar.Location = new System.Drawing.Point(351, 346);
             this.sendBufferProgressBar.Name = "sendBufferProgressBar";
-            this.sendBufferProgressBar.Size = new System.Drawing.Size(292, 17);
+            this.sendBufferProgressBar.Size = new System.Drawing.Size(429, 17);
             this.sendBufferProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.sendBufferProgressBar.TabIndex = 28;
             // 
@@ -487,17 +496,17 @@
             // 
             this.label6.AutoSize = true;
             this.label6.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label6.Location = new System.Drawing.Point(791, 32);
+            this.label6.Location = new System.Drawing.Point(783, 32);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(99, 13);
             this.label6.TabIndex = 29;
-            this.label6.Text = "Last heard stations:";
+            this.label6.Text = "Last heard station:";
             // 
             // recieveBufferProgressBar
             // 
-            this.recieveBufferProgressBar.Location = new System.Drawing.Point(351, 375);
+            this.recieveBufferProgressBar.Location = new System.Drawing.Point(351, 369);
             this.recieveBufferProgressBar.Name = "recieveBufferProgressBar";
-            this.recieveBufferProgressBar.Size = new System.Drawing.Size(292, 17);
+            this.recieveBufferProgressBar.Size = new System.Drawing.Size(429, 17);
             this.recieveBufferProgressBar.TabIndex = 30;
             // 
             // Form1
@@ -518,7 +527,7 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.sendToModemTextBox);
+            this.Controls.Add(this.fromMonitorTextBox);
             this.Controls.Add(this.sendTextTextBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.abortConnectionButton);
@@ -584,7 +593,7 @@
         private System.Windows.Forms.Button abortConnectionButton;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox sendTextTextBox;
-        private System.Windows.Forms.TextBox sendToModemTextBox;
+        private System.Windows.Forms.TextBox fromMonitorTextBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label4;
@@ -599,6 +608,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
         private System.Windows.Forms.ProgressBar recieveBufferProgressBar;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
     }
 }
 

@@ -11,14 +11,11 @@ namespace Logger
 {
     public class Log
     {
-
-
-
         private static string FileNameExtention
         {
             get
             {
-                string fileName = DateTime.Now.Date.ToString("ddMMyyyy") + ".log";
+                string fileName = "_" + DateTime.Now.Date.ToString("ddMMyyyy") + ".log";
                 return fileName;
             }
         }
@@ -43,11 +40,29 @@ namespace Logger
             }
             return false;
         }
+        public static bool Info(string message)
+        {
+            if (enableInfo)
+            {
+                Task asyncTask = WriteFileAsync(message, " |INFO | ", String.Empty);
+                return true;
+            }
+            return false;
+        }
         public static bool Error(string message, string _className)
         {
             if (enableError)
             {
                 Task asyncTask = WriteFileAsync(message, " |ERROR| ", _className);
+                return true;
+            }
+            return false;
+        }
+        public static bool Error(string message)
+        {
+            if (enableError)
+            {
+                Task asyncTask = WriteFileAsync(message, " |ERROR| ", String.Empty);
                 return true;
             }
             return false;
@@ -64,24 +79,6 @@ namespace Logger
             }
             return false;
         }
-        public static bool Info(string message)
-        {
-            if (enableInfo)
-            {
-                Task asyncTask = WriteFileAsync(message, " |INFO | ", String.Empty);
-                return true;
-            }
-            return false;
-        }
-        public static bool Error(string message)
-        {
-            if (enableError)
-            {
-                Task asyncTask = WriteFileAsync(message, " |ERROR| ", String.Empty);
-                return true;
-            }
-            return false;
-        }
         public static bool Debug(string message)
         {
             if (enableDebug)
@@ -89,6 +86,30 @@ namespace Logger
                 if (!message.Contains("MoveNext"))
                 {
                     Task asyncTask = WriteFileAsync(message, " |DEBUG| ", String.Empty);
+                }
+                return true;
+            }
+            return false;
+        }
+        public static bool Fault(string message, string _className)
+        {
+            if (enableDebug)
+            {
+                if (!message.Contains("MoveNext"))
+                {
+                    Task asyncTask = WriteFileAsync(message, " |FAULT| ", _className);
+                }
+                return true;
+            }
+            return false;
+        }
+        public static bool Fault(string message)
+        {
+            if (enableDebug)
+            {
+                if (!message.Contains("MoveNext"))
+                {
+                    Task asyncTask = WriteFileAsync(message, " |FAULT| ", String.Empty);
                 }
                 return true;
             }

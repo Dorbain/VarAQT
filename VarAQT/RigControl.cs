@@ -107,14 +107,14 @@ namespace VarAQT
                 switch (s)
                 {
                     case string FA when s.Contains("FA"):
-                        this.label1.Text = Functions.frequency(s);
+                        this.label1.Text = Functions.Frequency(s);
                         break;
                     case string FB when s.Contains("FB"):
-                        this.label2.Text = Functions.frequency(s);
+                        this.label2.Text = Functions.Frequency(s);
                         break;
                     case string SM when s.Contains("SM"):
                         Values.sMeter = s;
-                        this.label3.Text = Functions.sMeter(s);
+                        this.label3.Text = Functions.Smeter(s);
                         break;
                     case string TX0 when s.Contains("TX0"):
                         this.label4.Text = "RX";
@@ -264,7 +264,7 @@ namespace VarAQT
 
 
 
-        //private void updateRecievedFromModemTextBox(string _data)
+        //private void updateFromModemTextBox(string _data)
         //{
         //    textBox1.Text = textBox1.Text + DateTime.Now.ToString("HH:mm:ss") + " " + _data + Environment.NewLine;
         //    textBox1.SelectionStart = textBox1.Text.Length;

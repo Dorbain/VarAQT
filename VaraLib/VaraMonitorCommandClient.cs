@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace VaraLib
 {
-    public class VARACommandClient
+    public class VARAMonitorCommandClient
     {
         // *** Event Handlers *** //
 
@@ -38,7 +38,7 @@ namespace VaraLib
         private Socket socket;
         private byte[] readerBuffer = new byte[256];
 
-        private string ClassName = "VaraCommandClient";
+        private string ClassName = "VaraMonitorCommandClient";
 
         // *** Methods *** //
 
@@ -47,7 +47,7 @@ namespace VaraLib
         /// </summary>
         /// <param name="_ip">Server IP</param>
         /// <param name="_port">Server Port</param>
-        public VARACommandClient(string _ip, int _port)
+        public VARAMonitorCommandClient(string _ip, int _port)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             ipAddress = IPAddress.Parse(_ip);
@@ -57,7 +57,7 @@ namespace VaraLib
         /// <summary>
         /// VARADataClientConnect to the server
         /// </summary>
-        public void VARACommandConnect()
+        public void VARAMonitorCommandConnect()
         {
             try
             {
@@ -78,7 +78,7 @@ namespace VaraLib
 
                 // VARADataClientConnect to server non-Blocking method
                 socket.Blocking = false;
-                AsyncCallback onconnect = new AsyncCallback(OnVARACommandClientConnect);
+                AsyncCallback onconnect = new AsyncCallback(OnVARAMonitorCommandClientConnect);
                 socket.BeginConnect(epServer, onconnect, socket);
                 Log.Info("Connected", ClassName);
             }
@@ -95,7 +95,7 @@ namespace VaraLib
         /// Check connection status of the socket
         /// </summary>
         /// <returns>True or False based on status</returns>
-        public bool IsVARACommandClientConnected()
+        public bool IsVARAMonitorCommandClientConnected()
         {
             if (socket != null)
             {
@@ -105,7 +105,7 @@ namespace VaraLib
         }
 
         // Setup Callbacks if Socket is Connected
-        private void OnVARACommandClientConnect(IAsyncResult ar)
+        private void OnVARAMonitorCommandClientConnect(IAsyncResult ar)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             Socket _socket = (Socket)ar.AsyncState;
@@ -114,7 +114,7 @@ namespace VaraLib
             {
                 if (_socket.Connected)
                 {
-                    SetupRecieveVARACommandClientCallback(_socket);
+                    SetupRecieveVARAMonitorCommandClientCallback(_socket);
                     OnConnectEvent(true);
                     Log.Info("Socket Connection established", ClassName);
                 }
@@ -132,28 +132,28 @@ namespace VaraLib
         }
 
         // Setup Recieve Callback for Async Listning
-        private void SetupRecieveVARACommandClientCallback(Socket _socket)
+        private void SetupRecieveVARAMonitorCommandClientCallback(Socket _socket)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             try
             {
-                AsyncCallback recieveData = new AsyncCallback(OnVARACommandClientRecieved);
+                AsyncCallback recieveData = new AsyncCallback(OnVARAMonitorCommandClientRecieved);
                 _socket.BeginReceive(readerBuffer, 0, readerBuffer.Length, SocketFlags.None, recieveData, _socket);
             }
             catch (Exception ex)
             {
-                VARACommandClientDispose();
+                VARAMonitorCommandClientDispose();
                 Log.Error(ex.ToString(), ClassName);
                 Log.Error(ex.Message.ToString(), ClassName);
             }
         }
 
         // Recieve data from TCP
-        private void OnVARACommandClientRecieved(IAsyncResult ar)
+        private void OnVARAMonitorCommandClientRecieved(IAsyncResult ar)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             Socket _socket = (Socket)ar.AsyncState;
-            if (IsVARACommandClientConnected())
+            if (IsVARAMonitorCommandClientConnected())
             {
                 try
                 {
@@ -170,16 +170,16 @@ namespace VaraLib
                         OnDataRecievedEvent(sRecieved);
                         Log.Info(sRecieved.ToString(), ClassName);
                         // If the Connection is Still Usable Restablish the Callback
-                        SetupRecieveVARACommandClientCallback(_socket);
+                        SetupRecieveVARAMonitorCommandClientCallback(_socket);
                     }
                     else
                     {
-                        VARACommandClientDispose();
+                        VARAMonitorCommandClientDispose();
                     }
                 }
                 catch (Exception ex)
                 {
-                    VARACommandClientDispose();
+                    VARAMonitorCommandClientDispose();
                     Log.Error(ex.ToString(), ClassName);
                     Log.Error(ex.Message.ToString(), ClassName);
                     //throw new Exception("Recieve Operation Failed " + ex.ToString());
@@ -192,11 +192,11 @@ namespace VaraLib
         /// </summary>
         /// <param name="_data">Data to be written</param>
         /// <returns>Success status as Boolean Value</returns>
-        public bool VARACommandClientWrite(String _data)
+        public bool VARAMonitorCommandClientWrite(String _data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             // Check Connection
-            if (IsVARACommandClientConnected())
+            if (IsVARAMonitorCommandClientConnected())
             {
                 try
                 {
@@ -207,7 +207,7 @@ namespace VaraLib
                 }
                 catch (Exception ex)
                 {
-                    VARACommandClientDispose();
+                    VARAMonitorCommandClientDispose();
                     Log.Error(ex.ToString(), ClassName);
                     Log.Error(ex.Message.ToString(), ClassName);
                     return false;
@@ -225,11 +225,11 @@ namespace VaraLib
         /// </summary>
         /// <param name="_data">Data to be written</param>
         /// <returns>Success status as Boolean Value</returns>
-        public bool VARACommandClientWrite(byte[] _data)
+        public bool VARAMonitorCommandClientWrite(byte[] _data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             // Check Connection
-            if (IsVARACommandClientConnected())
+            if (IsVARAMonitorCommandClientConnected())
             {
                 try
                 {
@@ -239,7 +239,7 @@ namespace VaraLib
                 }
                 catch (Exception ex)
                 {
-                    VARACommandClientDispose();
+                    VARAMonitorCommandClientDispose();
                     Log.Error(ex.ToString(), ClassName);
                     Log.Error(ex.Message.ToString(), ClassName);
                     return false;
@@ -255,7 +255,7 @@ namespace VaraLib
         /// <summary>
         /// Close the Socket Connection
         /// </summary>
-        private void VARACommandClientDispose()
+        private void VARAMonitorCommandClientDispose()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             if (socket != null && socket.Connected)
@@ -269,7 +269,7 @@ namespace VaraLib
         /// <summary>
         /// VARADataClientDisconnect the socket
         /// </summary>
-        public void VARACommandClientDisconnect()
+        public void VARAMonitorCommandClientDisconnect()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             if (socket != null && socket.Connected)

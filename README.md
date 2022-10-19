@@ -204,9 +204,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Name - [@Chris_Wolters76](https://twitter.com/Chris_Wolters76) - chris.wolters@outlook.com
+Name - [PD1AQT](https://twitter.com/Chris_Wolters76) - chris.wolters@outlook.com
 
-Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/VarAQT)
+Project Link: [VarAQT](https://github.com/Dorbain/VarAQT)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -236,7 +236,7 @@ Project Link: [https://github.com/Dorbain/VarAQT](https://github.com/Dorbain/Var
 [license-shield]: https://img.shields.io/github/license/Dorbain/VarAQT.svg?style=for-the-badge
 [license-url]: https://github.com/Dorbain/VarAQT/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+[linkedin-url]: https://www.linkedin.com/in/chrwolters/
 [product-screenshot]: images/screenshot.png
 [dotnet]: https://img.shields.io/badge/dotnet%20version-NET%20Framework%204.8-blue
 [dotnet-url]: https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48

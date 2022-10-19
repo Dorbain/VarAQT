@@ -25,66 +25,6 @@ namespace VarAQT.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("PD1AQT")]
-        public string CallSign {
-            get {
-                return ((string)(this["CallSign"]));
-            }
-            set {
-                this["CallSign"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Chris")]
-        public string Name {
-            get {
-                return ((string)(this["Name"]));
-            }
-            set {
-                this["Name"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Almere")]
-        public string QTH {
-            get {
-                return ((string)(this["QTH"]));
-            }
-            set {
-                this["QTH"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YAESU FTdx10")]
-        public string Rig {
-            get {
-                return ((string)(this["Rig"]));
-            }
-            set {
-                this["Rig"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("JO22OI")]
-        public string GridLocator {
-            get {
-                return ((string)(this["GridLocator"]));
-            }
-            set {
-                this["GridLocator"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
         public string VaraCommandClientIP {
             get {
@@ -116,6 +56,54 @@ namespace VarAQT.Properties {
             }
             set {
                 this["VaraKissClientPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VaraMonitorEnabled {
+            get {
+                return ((bool)(this["VaraMonitorEnabled"]));
+            }
+            set {
+                this["VaraMonitorEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string VaraMonitorCommandClientIP {
+            get {
+                return ((string)(this["VaraMonitorCommandClientIP"]));
+            }
+            set {
+                this["VaraMonitorCommandClientIP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8350")]
+        public int VaraMonitorCommandClientPort {
+            get {
+                return ((int)(this["VaraMonitorCommandClientPort"]));
+            }
+            set {
+                this["VaraMonitorCommandClientPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8100")]
+        public int VaraMonitorKissClientPort {
+            get {
+                return ((int)(this["VaraMonitorKissClientPort"]));
+            }
+            set {
+                this["VaraMonitorKissClientPort"] = value;
             }
         }
     }

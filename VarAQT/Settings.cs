@@ -21,7 +21,7 @@ namespace VarAQT
 
         private void Settings_Load(object sender, EventArgs e)
         {
-            loadSettings(); 
+            loadSettings();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -39,8 +39,8 @@ namespace VarAQT
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if(_savedSettings)
-            this.Close();
+            if (_savedSettings)
+                this.Close();
             else
             {
                 string message = "You posible forgot to save your changes, do you want to save them now?";
@@ -60,15 +60,52 @@ namespace VarAQT
         }
         private void loadSettings()
         {
-            textBox1.Text = Properties.Settings.Default.CallSign;
-            textBox2.Text = Properties.Settings.Default.GridLocator;
+            Values.stationDetails = Functions.readStationDetailsXML();
+            callSignTextBox.Text = Values.stationDetails.CallSign;
+            nameTextBox.Text = Values.stationDetails.Name;
+            streetTextBox.Text = Values.stationDetails.Street;
+            cityTextBox.Text = Values.stationDetails.City;
+            countryTextBox.Text = Values.stationDetails.Country;
+            stateTextBox.Text = Values.stationDetails.State;
+            provinceTextBox.Text = Values.stationDetails.Province;
+            zipTextBox.Text = Values.stationDetails.ZipCode;
+            eMailTextBox.Text = Values.stationDetails.Email;
+            webPageTextBox.Text = Values.stationDetails.WebPage;
+            locatorTextBox.Text = Values.stationDetails.Locator;
+            latitudeTextBox.Text = Values.stationDetails.Latitude;
+            longitudeTextBox.Text = Values.stationDetails.Longitude;
+            cqZoneTextBox.Text = Values.stationDetails.CQzone;
+            ituTextBox.Text = Values.stationDetails.ITU;
+            licenseTextBox.Text = Values.stationDetails.License;
+            equipmentTextBox.Text = Values.stationDetails.Equipment;
+            antennasTextBox.Text = Values.stationDetails.Antennas;
+            powerTextBox.Text = Values.stationDetails.Power;
+            commentTextBox.Text = Values.stationDetails.Comment;
         }
 
         private void saveSettings()
         {
-            
-            Properties.Settings.Default.Save();
-            Properties.Settings.Default.Reload();
+            Values.stationDetails.CallSign = callSignTextBox.Text;
+            Values.stationDetails.Name = nameTextBox.Text;
+            Values.stationDetails.Street = streetTextBox.Text;
+            Values.stationDetails.City = cityTextBox.Text;
+            Values.stationDetails.Country = countryTextBox.Text;
+            Values.stationDetails.State = stateTextBox.Text;
+            Values.stationDetails.Province = provinceTextBox.Text;
+            Values.stationDetails.ZipCode = zipTextBox.Text;
+            Values.stationDetails.Email = eMailTextBox.Text;
+            Values.stationDetails.WebPage = webPageTextBox.Text;
+            Values.stationDetails.Locator = locatorTextBox.Text;
+            Values.stationDetails.Latitude = latitudeTextBox.Text;
+            Values.stationDetails.Longitude = longitudeTextBox.Text;
+            Values.stationDetails.CQzone = cqZoneTextBox.Text;
+            Values.stationDetails.ITU = ituTextBox.Text;
+            Values.stationDetails.License = licenseTextBox.Text;
+            Values.stationDetails.Equipment = equipmentTextBox.Text;
+            Values.stationDetails.Antennas = antennasTextBox.Text;
+            Values.stationDetails.Power = powerTextBox.Text;
+            Values.stationDetails.Comment = commentTextBox.Text;
+            Functions.WriteStationDetailsXML(Values.stationDetails);
             _savedSettings = true;
         }
 

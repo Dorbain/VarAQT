@@ -33,62 +33,75 @@ namespace VarAQT
         #region Constants
 
         // For Display Data in Text Box and Info - UI Thread Invoke
-        public delegate void AddLogDeligate(string data);
-        
-        public AddLogDeligate UpdateFromModemTextBoxDeligate;
-        //public AddLogDeligate UpdateSendToModemTextBoxDeligate;
-        public AddLogDeligate UpdateCallSignTextBoxDeligate;
-        public AddLogDeligate UpdateSendTextTextBoxDeligate;
-        
+        public delegate void AddFromModemDeligate(string data);
+        public AddFromModemDeligate UpdateFromModemTextBoxDeligate;
+
+        public delegate void AddSendTextDeligate(string data);
+        public AddSendTextDeligate UpdateSendTextTextBoxDeligate;
+
         public delegate void AddRichDeligate(string data, Color color);
         public AddRichDeligate UpdateRichTextBoxDeligate;
-        
-        public AddLogDeligate UpdateDataGridDeligate;
-        
-        public delegate void AddNotificationDelegate(int type, bool status);
-        public AddNotificationDelegate UpdateStatusIcons;
+
+        public delegate void AddDataGridDeligate(string data);
+        public AddDataGridDeligate UpdateDataGridDeligate;
+
+        //public AddLogDeligate UpdateSendToModemTextBoxDeligate;
+        //public AddLogDeligate UpdateCallSignTextBoxDeligate;
+
+        //public delegate void AddNotificationDelegate(int type, bool status);
+        //public AddNotificationDelegate UpdateStatusIcons;
         // Client Object
         VARACommandClient varaCmd;
         VARADataClient varaData;
+        VARAMonitorCommandClient varaMonitorCmd;
         // VARAKISSClient varaKISS;
 
-        public List<stations> lastHeard = new List<stations>();
+        public List<station> lastHeard = new List<station>();
 
         #endregion
 
         #region Form
         public Form1()
         {
-            InitializeComponent();
-            Log.enableDebug = true;
-            Log.enableInfo = true;
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            UpdateFromModemTextBoxDeligate = new AddLogDeligate(updateRecievedFromModemTextBox);
-            //UpdateSendToModemTextBoxDeligate = new AddLogDeligate(updateSendToModemTextBox);
-            UpdateCallSignTextBoxDeligate = new AddLogDeligate(updateCallSignTextBox);
-            UpdateSendTextTextBoxDeligate = new AddLogDeligate(updateSendTextTextBox);
+            InitializeComponent();
+            UpdateFromModemTextBoxDeligate = new AddFromModemDeligate(updateFromModemTextBox);
+            UpdateSendTextTextBoxDeligate = new AddSendTextDeligate(updateSendTextTextBox);
             UpdateRichTextBoxDeligate = new AddRichDeligate(updateRichTextBox);
-            UpdateDataGridDeligate = new AddLogDeligate(updateLastHeardDataGrid);
+            UpdateDataGridDeligate = new AddDataGridDeligate(updateLastHeardDataGrid);
+
+
+            //UpdateSendToModemTextBoxDeligate = new AddLogDeligate(updateSendToModemTextBox);
+            //UpdateCallSignTextBoxDeligate = new AddLogDeligate(updateCallSignTextBox);
             //UpdateStatusIcons = new AddNotificationDelegate(UpdateSatusIcons);
+            RigControl rigControlForm = new RigControl();
+            rigControlForm.Show();
             timer1.Interval = 100;
             beaconTimer.Interval = 300000; //60000 = 1 minuut, 300000 = 5 minuten ;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            RigControl rigControlForm = new RigControl();
-            rigControlForm.Show();
             setColors();
             setDataGrid();
-            disableButtonsDisconnected();
-            timer1.Start();
             connectToVaraModem();
-            bw500();
-            listenON();
-            chatOn();
-            listenCQ();
-            myCall(Values.callSign);
+            setbw500();
+            setlistenON();
+            setchatOn();
+            setlistenCQ();
+            setMyCall(Values.stationDetails.CallSign);
+            disableButtonsDisconnected();
             addLastHeardFileToDataGrid();
+            timer1.Start();
+
+            if (Values.VARAMonitorEnabled)
+            {
+                connectToVaraMonitorModem();
+                setMonitorbw500();
+                setMonitorlistenON();
+
+            }
+
         }
 
         #endregion
@@ -99,11 +112,13 @@ namespace VarAQT
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             connectToVaraModem();
-            bw500();
-            listenON();
-            listenCQ();
-            chatOn();
-            myCall(Values.callSign);
+            setbw500();
+            setlistenON();
+            setlistenCQ();
+            setchatOn();
+            setMyCall(Values.stationDetails.CallSign);
+            if (Values.VARAMonitorEnabled)
+                connectToVaraMonitorModem();
         }
         // Disconnect to VARA modem Button
         private void button2_Click(object sender, EventArgs e)
@@ -111,6 +126,8 @@ namespace VarAQT
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             varaCmd.VARACommandClientDisconnect();
             varaData.VARADataClientDisconnect();
+            if(Values.VARAMonitorEnabled)
+                varaMonitorCmd.VARAMonitorCommandClientDisconnect();
             disableButtonsDisconnected();
         }
         // Start Beacon Timer Button
@@ -141,14 +158,16 @@ namespace VarAQT
         private void button5_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            bw2300();
-
+            sendCQ();
+            Values.sendCQ = true;
         }
         // Spare Button (Now saves the LastHeard list to a XML file)
         private void button6_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            addLastHeardFileToDataGrid();
+            connectToVaraMonitorModem();
+            setMonitorbw500();
+            setMonitorlistenON();
 
         }
         // Stop beacon and TX Button
@@ -170,6 +189,7 @@ namespace VarAQT
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             string callToConnect = callSignTextBox.Text.ToString();
+            abortConnectionButton.Enabled = true;
             connectToStation(callToConnect);
         }
         // Disconnect from station Button
@@ -186,7 +206,23 @@ namespace VarAQT
         }
         private void button12_Click(object sender, EventArgs e)
         {
-            Functions.WriteXML<stations>(lastHeard, "LastHeard.xml");
+            // Opening Data TCP Client
+            try
+            {
+                varaData = new VARADataClient(Values.VARADataClientIP, Values.VARADataClientPort);
+                varaData.OnConnectEvent += new VARADataClient.OnConnectEventHandler(OnDataConnect);
+                varaData.OnDataRecievedEvent += new VARADataClient.DataReceivedEventHandler(OnDataRecieved);
+                varaData.VARADataClientConnect();
+                //updateFromModemTextBox("\n Vara data channel is connected...\n");
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Connection and Recieve Callbacks
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateFromModemTextBox("\n Vara data channel error : " + ex.ToString()); // Changed
+            }
+
         }
         #endregion
 
@@ -195,11 +231,11 @@ namespace VarAQT
         private void timer1_Tick(object sender, EventArgs e)
         {
             toolStripStatusLabel7.Text = "UTC: " + DateTime.UtcNow.ToString("HH:mm:ss");
-            sendBufferProgressBar.Maximum = Values.sendBufferSize;
+            sendBufferProgressBar.Maximum = 256; //Values.sendBufferSize;
             sendBufferProgressBar.Value = Values.sendBuffer;
             if (!Values.stationConnected)
                 sendBufferProgressBar.Value = 0;
-            recieveBufferProgressBar.Maximum = Values.recieveBufferSize;
+            recieveBufferProgressBar.Maximum = 256; // Values.recieveBufferSize;
             recieveBufferProgressBar.Value = Values.recieveBuffer;
             if (!Values.stationConnected)
                 recieveBufferProgressBar.Value = 0;
@@ -212,18 +248,19 @@ namespace VarAQT
         }
         #endregion
 
-        // Connection Status Listner
+        #region Connection Listeners
+        // Connection Status Listner for the VARA Command channel
         private void OnCommandConnect(bool status)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             switch (status)
             {
                 case true:
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Connected"));
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Vara Connected"));
                     this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Green));
                     break;
                 case false:
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Disconnected"));
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Vara Disconnected"));
                     this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Red));
                     break;
                 default:
@@ -232,8 +269,90 @@ namespace VarAQT
                     break;
             }
         }
-        // VARA Command channel Recieved Listner
-        public async void OnCommandRecieved(string data)
+        // Connection Status Listner for the VARA Data channel
+        private void OnDataConnect(bool status)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            switch (status)
+            {
+                case true:
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Vara Connected"));
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Green));
+                    break;
+                case false:
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Vara Disconnected"));
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Red));
+                    break;
+                default:
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Unknown"));
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Yellow));
+                    break;
+            }
+        }
+        // Connection Status Listner for the VARA Monitor Command channel
+        private void OnMonitorCommandConnect(bool status)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            //switch (status)
+            //{
+            //    case true:
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Connected"));
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Green));
+            //        break;
+            //    case false:
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Disconnected"));
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Red));
+            //        break;
+            //    default:
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.Text = "Unknown"));
+            //        this.BeginInvoke((Action)(() => toolStripStatusLabel2.BackColor = Color.Yellow));
+            //        break;
+            //}
+        }
+        #endregion
+
+        // VARA Modem Command channel Recieved Listner
+        public void OnMonitorCommandRecieved(string data)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            string[] dataRecieved = data.Split('\r');
+            foreach (string text in dataRecieved)
+            {
+                if (text != String.Empty)
+                {
+                    switch (text)
+                    {
+                        case VARAResult.busyOFF:
+                            this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Green));
+                            this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "FREE"));
+                            Values.busy = false;
+                            break;
+                        case VARAResult.busyON:
+                            Values.busy = true;
+                            this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Red));
+                            this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "BUSY"));
+                            break;
+                        case VARAResult.IAmAlive:
+                            Log.Debug(VARAResult.IAmAlive);
+                            break;
+                        case VARAResult.missingSoundCard:
+                            updateFromModemTextBox(Values.incomming + text);
+                            break;
+                        case VARAResult.ok:
+                            updateFromModemTextBox(Values.incomming + text);
+                            break;
+                        case VARAResult.wrong:
+                            updateFromModemTextBox(Values.incomming + text);
+                            break;
+                        default:
+                            updateFromModemTextBox(Values.incomming + text);
+                            break;
+                    }
+                }
+            }
+        }
+        // VARA Command channel Recieved Listener
+        public void OnCommandRecieved(string data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             string[] dataRecieved = data.Split('\r');
@@ -243,13 +362,13 @@ namespace VarAQT
                     switch (text)
                     {
                         case VARAResult.pttOFF:
-                            await RigControl.disableTX().ConfigureAwait(false);
+                            RigControl.disableTX().ConfigureAwait(false);
                             Values.busy = false;
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.BackColor = Color.Green));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.Text = "RX"));
                             break;
                         case VARAResult.pttON:
-                            await RigControl.enableTX().ConfigureAwait(false);
+                            RigControl.enableTX().ConfigureAwait(false);
                             Values.busy = true;
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.BackColor = Color.Red));
                             this.BeginInvoke((Action)(() => toolStripStatusLabel8.Text = "TX"));
@@ -267,65 +386,62 @@ namespace VarAQT
                         case VARAResult.disconnected:
                             Values.outGoingConnection = false;
                             disableButtonsStationDisconnected();
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.pending:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.cancelPending:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
+                            if (Values.sendCQ)
+                                sendCQ();
                             break;
                         case string a when text.Contains(VARAResult.registered):
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
                             enableButtonsRegistered();
-                            break;
-                        case VARAResult.registered:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
-                            enableButtonsRegistered();
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.linkRegistered:
                             enableButtonsStationConnected();
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBox(Values.incomming + text);
                             break;
                         case VARAResult.linkUnRegistered:
                             enableButtonsStationConnected();
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.IAmAlive:
-                            Log.Debug(VARAResult.IAmAlive);
+                            Log.Debug(Values.incomming + VARAResult.IAmAlive);
                             break;
                         case VARAResult.missingSoundCard:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.ok:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
                         case VARAResult.wrong:
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
                             break;
-
                         case string a when text.Contains("SN "):
                             if (Values.stationConnected)
                             {
-                                this.BeginInvoke((Action)(() => textBox5.Text = Functions.sMeter(Values.sMeter)));
-                                this.BeginInvoke((Action)(() => textBox6.Text = Functions.sNMeter(text)));
-                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.sMeter(Values.sMeter));
-                                Values.signalNoice = text;
+                                this.BeginInvoke((Action)(() => textBox5.Text = Functions.Smeter(Values.sMeter)));
+                                this.BeginInvoke((Action)(() => textBox6.Text = Functions.Snmeter(text)));
+                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.Smeter(Values.sMeter));
+                                Values.signalNoice = Functions.Snmeter(text);
                             }
                             else
                             {
-                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.sMeter(Values.sMeter));
-                                Values.signalNoice = text;
+                                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.incomming + text + " " + Functions.Smeter(Values.sMeter));
+                                Values.signalNoice = Functions.Snmeter(text);
                             }
                             break;
                         case string a when text.Contains(VARAResult.cqFrame):
-                            await updateFromModemTextBoxAsync(Values.incomming + text);
-                            await updateLastHeardAsync(text);
+                            updateFromModemTextBoxDeligated(Values.incomming + text);
+                            updateLastHeardAsync(text).ConfigureAwait(false); ;
                             break;
                         default:
                             if (text.Contains("BUFFER "))
                             {
-                                await updateFromModemTextBoxAsync(Values.incomming + text);
+                                updateFromModemTextBoxDeligated(Values.incomming + text);
                                 string buffer = text.Remove(0, 7);
                                 int bufferSize = int.Parse(buffer);
                                 Values.sendBuffer = bufferSize;
@@ -333,7 +449,7 @@ namespace VarAQT
                             }
                             else if (text.Contains("CONNECTED "))
                             {
-                                await updateFromModemTextBoxAsync(Values.incomming + text);
+                                updateFromModemTextBoxDeligated(Values.incomming + text);
                                 enableButtonsStationConnected();
                                 if (!Values.outGoingConnection)
                                 {
@@ -342,75 +458,146 @@ namespace VarAQT
                                 }
                                 break;
                             }
-                            richTextBox1.Invoke(UpdateRichTextBoxDeligate, text + "\r\n" , Color.DarkRed);
-
+                            richTextBox1.Invoke(UpdateRichTextBoxDeligate, text + "\r\n", Color.DarkRed);
+                            Log.Info(text);
                             break;
                     }
             }
         }
-        private async Task updateFromModemTextBoxAsync(string text)
+        // VARA Data channel Reciever Listener
+        private void OnDataRecieved(string data)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            await Task.Run(() =>
+            richTextBox1.Invoke(UpdateRichTextBoxDeligate, data, Color.DarkBlue);
+            string error = "<ERR> Not supported!";
+            // recieved tag handeling
+            switch (data)
             {
-                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, text);
-            });
+                case string a when data.Contains(RecievedTag.signal): //  = "<R";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.signal + Values.signalNoice + SendTag.end);
+                    sendText();
+                    break;
+                //case string a when data.Contains(RecievedTag.fullcall): //  = "<FC:";
+                //    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                //    //sendText();
+                //    break;
+                case string a when data.Contains(RecievedTag.name): //  = "<NAME:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qth): //  = "<QTH:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.locator): //  = "<LOC:";
+                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    //sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.lastheard): //  = "<LHR>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qsyu): //  = "<QSYU>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.qsyd): //  = "<QSYD>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.version): //  = "<VER>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.version);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.info): //  = "<INFO>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.snrrequest): //  = "<SNRR>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.signal + Values.signalNoice + SendTag.end);
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.away): //  = "<AWAY>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "I am sorry that you are away. Maybe next time.");
+                    sendText();
+                    break;
+                case string a when data.Contains(RecievedTag.disconnect): //  = "<DISC>";
+                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.disconnect);
+                    sendText();
+                    break;
+            }
+
         }
-        private void updateRecievedFromModemTextBox(string _data)
+
+        private void updateFromModemTextBoxDeligated(string text)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            fromModemTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " " + _data + Environment.NewLine);
+            fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, text);
+        }
+        private void updateFromModemTextBox(string text)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            fromModemTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " " + text + Environment.NewLine);
             fromModemTextBox.SelectionStart = fromModemTextBox.Text.Length;
             fromModemTextBox.ScrollToCaret();
-            Log.Info(_data);
+            Log.Info(text);
         }
-        private async Task updateCallSignTextBoxAsync(string text)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            await Task.Run(() =>
-            {
-                callSignTextBox.Invoke(UpdateCallSignTextBoxDeligate, text);
-            });
-        }
-        private void updateCallSignTextBox(string _data)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            callSignTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " " + _data + Environment.NewLine);
-            callSignTextBox.SelectionStart = callSignTextBox.Text.Length;
-            callSignTextBox.ScrollToCaret();
-        }
-        private async Task updateSendTextTextBoxAsync(string text)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            await Task.Run(() =>
-            {
-                sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, text);
-            });
-        }
-        private void updateSendTextTextBox(string _data)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            sendTextTextBox.Text = _data;
-        }
-        //private void updateSendToModemTextBox(string _data)
+
+        //private async Task updateCallSignTextBoxAsync(string text)
         //{
         //    Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-        //    sendToModemTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " <- " + _data + Environment.NewLine);
-        //    sendToModemTextBox.SelectionStart = sendToModemTextBox.Text.Length;
-        //    sendToModemTextBox.ScrollToCaret();
+        //    await Task.Run(() =>
+        //    {
+        //        callSignTextBox.Invoke(UpdateCallSignTextBoxDeligate, text);
+        //    });
         //}
+
+        //private void updateCallSignTextBox(string _data)
+        //{
+        //    Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+        //    callSignTextBox.AppendText(DateTime.UtcNow.ToString("HH:mm:ss") + " " + _data + Environment.NewLine);
+        //    callSignTextBox.SelectionStart = callSignTextBox.Text.Length;
+        //    callSignTextBox.ScrollToCaret();
+        //}
+        //private async Task updateSendTextTextBoxAsync(string text)
+
+        //{
+        //    Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+        //    await Task.Run(() =>
+        //    {
+        //        sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, text);
+        //    });
+        //}
+
+        private void updateSendTextTextBox(string text)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            sendTextTextBox.Text = text;
+        }
+
         private async Task updateLastHeardAsync(string text)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             await Task.Run(() =>
             {
-                string remove = text.Remove(0, 8); // Remove CQ Frame
-                string replace = remove.Replace(" 500", ""); // Remove the BW 500
-                string beacon = replace.Replace(" ", ""); // Remove spaces if any.
-                // split the callsign from the ID
-                string[] ids = beacon.Split('-');
-                string beaconCallSign = ids[0];
-                string beaconSign = ids[1];
+                // declare temp strings
+
+                string beaconCallSign = String.Empty;
+                string beaconSign = String.Empty;
+                
+                string removeCQframe = text.Remove(0, 8); // Remove CQ Frame
+                string replaceBW500 = removeCQframe.Replace(" 500", ""); // Remove the BW 500
+                string beaconCall = replaceBW500.Replace(" ", ""); // Remove spaces if any.
+                // split the callsign from the ID if there is any ID.
+
+                if (beaconCall.Contains("-"))
+                {
+                    string[] ids = beaconCall.Split('-');
+                    beaconCallSign = ids[0];
+                    beaconSign = ids[1];
+                }
+                else
+                    beaconCallSign = beaconCall;
 
                 dataGridView1.Invoke(new Action(delegate ()
                 {
@@ -429,9 +616,9 @@ namespace VarAQT
                             break;
                         }
                     }
-                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beaconCallSign, beaconSign , Functions.sNMeter(Values.signalNoice), count, Functions.sMeter(Values.sMeter));
+                    dataGridView1.Rows.Add(DateTime.UtcNow.ToString("HH:mm:ss"), beaconCallSign, beaconSign, Functions.Snmeter(Values.signalNoice), count, Functions.Smeter(Values.sMeter));
 
-                    lastHeard.Add(new stations { UTCTime = DateTime.UtcNow.ToString(), Call = beaconCallSign, SID = beaconSign, SNR = Functions.sNMeter(Values.signalNoice), SM = Functions.sMeter(Values.sMeter), Cnt = count.ToString() });
+                    lastHeard.Add(new station { UTCTime = DateTime.UtcNow.ToString(), Call = beaconCallSign, SID = beaconSign, SNR = Functions.Snmeter(Values.signalNoice), SM = Functions.Smeter(Values.sMeter), Cnt = count.ToString() });
 
 
                     dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -467,178 +654,60 @@ namespace VarAQT
         private void enableButtonsRegistered()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            if (!Values.stationConnected)
-            {
-                connectToVaraButton.Invoke((MethodInvoker)delegate { connectToVaraButton.Enabled = false; });
-                disconnectFromVaraButton.Invoke((MethodInvoker)delegate { disconnectFromVaraButton.Enabled = true; });
-                sendBeaconTimerButton.Invoke((MethodInvoker)delegate { sendBeaconTimerButton.Enabled = true; });
-                sendBeaconNowButton.Invoke((MethodInvoker)delegate { sendBeaconNowButton.Enabled = true; });
-                button5.Invoke((MethodInvoker)delegate { button5.Enabled = true; });
-                button6.Invoke((MethodInvoker)delegate { button6.Enabled = true; });
+                if (!Values.stationConnected)
+                {
+                    connectToVaraButton.Invoke((MethodInvoker)delegate { connectToVaraButton.Enabled = false; });
+                    disconnectFromVaraButton.Invoke((MethodInvoker)delegate { disconnectFromVaraButton.Enabled = true; });
+                    sendBeaconTimerButton.Invoke((MethodInvoker)delegate { sendBeaconTimerButton.Enabled = true; });
+                    sendBeaconNowButton.Invoke((MethodInvoker)delegate { sendBeaconNowButton.Enabled = true; });
+                    button5.Invoke((MethodInvoker)delegate { button5.Enabled = true; });
+                    button6.Invoke((MethodInvoker)delegate { button6.Enabled = true; });
+                    stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
+                    sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = false; });
+                    connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = true; });
+                    disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = false; });
+                    abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = false; });
+                }
+        }
+        private void enableButtonsStationConnected()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+                Values.stationConnected = true;
+                stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
+                sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = true; });
+                connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = false; });
+                disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = true; });
+                abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = true; });
+        }
+        private void disableButtonsStationDisconnected()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+
                 stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
                 sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = false; });
                 connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = true; });
                 disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = false; });
                 abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = false; });
-            }
-        }
-        private void enableButtonsStationConnected()
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            Values.stationConnected = true;
-            stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
-            sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = true; });
-            connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = false; });
-            disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = true; });
-            abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = true; });
-        }
-        private void disableButtonsStationDisconnected()
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            stopTxNowButton.Invoke((MethodInvoker)delegate { stopTxNowButton.Enabled = true; });
-            sendTextButton.Invoke((MethodInvoker)delegate { sendTextButton.Enabled = false; });
-            connectToStationButton.Invoke((MethodInvoker)delegate { connectToStationButton.Enabled = true; });
-            disconnectFromStationButton.Invoke((MethodInvoker)delegate { disconnectFromStationButton.Enabled = false; });
-            abortConnectionButton.Invoke((MethodInvoker)delegate { abortConnectionButton.Enabled = false; });
-            Values.stationConnected = false;
+                Values.stationConnected = false;
+
         }
         private void disableButtonsDisconnected()
         {
-            connectToVaraButton.Enabled = true;
-            disconnectFromVaraButton.Enabled = false;
-            sendBeaconTimerButton.Enabled = false;
-            sendBeaconNowButton.Enabled = false;
-            button5.Enabled = false;
-            button6.Enabled = false;
-            stopTxNowButton.Enabled = true;
-            sendTextButton.Enabled = false;
-            connectToStationButton.Enabled = false;
-            disconnectFromStationButton.Enabled = false;
-            abortConnectionButton.Enabled = false;
-            Values.stationConnected = false;
-        }
-        // VARA DATA Channel connected.
-        private void OnDataConnect(bool status)
-        {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            switch (status)
-            {
-                case true:
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.Text = "Connected"));
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.BackColor = Color.Green));
-                    break;
-                case false:
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.Text = "Disconnected"));
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.BackColor = Color.Red));
-                    break;
-                default:
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.Text = "Unknown"));
-                    this.BeginInvoke((Action)(() => toolStripStatusLabel4.BackColor = Color.Yellow));
-                    break;
-            }
-        }
-        // VARA DATA channel Recieved Listner
-        private void OnDataRecieved(string data)
-        {
-            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            richTextBox1.Invoke(UpdateRichTextBoxDeligate, data, Color.DarkBlue);
-            string error = "<ERR> Not supported!";
-            // recieved tag handeling
-            switch (data)
-            {
-                case string a when data.Contains(RecievedTag.signal): //  = "<R";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<R" + Values.signalNoice + ">");
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.fullcall): //  = "<FC:";
-                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    //sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.name): //  = "<NAME:";
-                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    //sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.qth): //  = "<QTH:";
-                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    //sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.locator): //  = "<LOC:";
-                    //sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    //sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.callsign): // = "<CALL>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, Values.callSign);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.namerequest): // = "<NAME>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<NAME:" + Values.name + ">");
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.qthrequest): //  = "<QTH>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<QTH:" + Values.QTH + ">");
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.locatorrequest): //  = "<LOC>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "<LOC:" + Values.grid + ">");
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.rig): //  = "<RIG>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, Values.rig);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.antenna): //  = "<ANT>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.hcall): //  = "<HCALL>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.hname): //  = "<HNAME>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.hqth): //  = "<HQTH>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.hlocator): //  = "<HLOC>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.lastheard): //  = "<LHR>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.qsyu): //  = "<QSYU>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.qsyd): //  = "<QSYD>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.version): //  = "<VER>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.version);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.info): //  = "<INFO>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.snrrequest): //  = "<SNRR>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, error);
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.away): //  = "<AWAY>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, "I am sorry you are away.");
-                    sendText();
-                    break;
-                case string a when data.Contains(RecievedTag.disconnect): //  = "<DISC>";
-                    sendTextTextBox.Invoke(UpdateSendTextTextBoxDeligate, SendTag.disconnect);
-                    sendText();
-                    break;
-            }
+
+                this.BeginInvoke((Action)(() => connectToVaraButton.Enabled = true));
+                this.BeginInvoke((Action)(() => disconnectFromVaraButton.Enabled = false));
+                this.BeginInvoke((Action)(() => sendBeaconTimerButton.Enabled = false));
+                this.BeginInvoke((Action)(() => sendBeaconNowButton.Enabled = false));
+                this.BeginInvoke((Action)(() => button5.Enabled = false));
+                this.BeginInvoke((Action)(() => button6.Enabled = false));
+                this.BeginInvoke((Action)(() => stopTxNowButton.Enabled = true));
+                this.BeginInvoke((Action)(() => sendTextButton.Enabled = false));
+                this.BeginInvoke((Action)(() => connectToStationButton.Enabled = false));
+                this.BeginInvoke((Action)(() => disconnectFromStationButton.Enabled = false));
+                this.BeginInvoke((Action)(() => abortConnectionButton.Enabled = false));
+                Values.stationConnected = false;
+
 
         }
         private void updateRichTextBox(string _data, Color color)
@@ -652,26 +721,26 @@ namespace VarAQT
             richTextBox1.SelectionStart = richTextBox1.Text.Length;
             richTextBox1.ScrollToCaret();
         }
-        private void UpdateSatusIcons(int type, bool status)
-        {
-            //Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            if (type == 1)
-            {
-                this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Red));
-                this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "BUSY"));
-            }
-            if (type == 0)
-            {
-                this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Green));
-                this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "FREE"));
-            }
-            if (type == 2)
-            {
-                this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = Color.Yellow));
-                //Thread.Sleep(500);
-                this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = SystemColors.Control));
-            }
-        }
+        //private void UpdateSatusIcons(int type, bool status)
+        //{
+        //    //Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+        //    if (type == 1)
+        //    {
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Red));
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "BUSY"));
+        //    }
+        //    if (type == 0)
+        //    {
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel6.BackColor = Color.Green));
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel6.Text = "FREE"));
+        //    }
+        //    if (type == 2)
+        //    {
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = Color.Yellow));
+        //        //Thread.Sleep(500);
+        //        this.BeginInvoke((Action)(() => toolStripStatusLabel7.BackColor = SystemColors.Control));
+        //    }
+        //}
         private void connectToVaraModem()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
@@ -682,15 +751,15 @@ namespace VarAQT
                 varaCmd = new VARACommandClient(Values.VARACommandClientIP, Values.VARACommandClientPort);
                 varaCmd.OnConnectEvent += new VARACommandClient.OnConnectEventHandler(OnCommandConnect);
                 varaCmd.OnDataRecievedEvent += new VARACommandClient.DataReceivedEventHandler(OnCommandRecieved);
-                varaCmd.CommandConnect();
-                //updateRecievedFromModemTextBox("\n Vara command channel is connected...\n");
+                varaCmd.VARACommandConnect();
+                //updateFromModemTextBox("\n Vara command channel is connected...\n");
             }
             catch (Exception ex)
             {
                 // Catch errors in Connection and Recieve Callbacks
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("\n Vara command channel error : " + ex.ToString());
+                updateFromModemTextBox("\n Vara command channel error : " + ex.ToString());
             }
             // Opening Data TCP Client
             try
@@ -699,18 +768,56 @@ namespace VarAQT
                 varaData.OnConnectEvent += new VARADataClient.OnConnectEventHandler(OnDataConnect);
                 varaData.OnDataRecievedEvent += new VARADataClient.DataReceivedEventHandler(OnDataRecieved);
                 varaData.VARADataClientConnect();
-                //updateRecievedFromModemTextBox("\n Vara data channel is connected...\n");
+                //updateFromModemTextBox("\n Vara data channel is connected...\n");
             }
             catch (Exception ex)
             {
                 // Catch errors in Connection and Recieve Callbacks
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("\n Vara data channel error : " + ex.ToString());
+                updateFromModemTextBox("\n Vara data channel error : " + ex.ToString());
             }
             Values.varaConnected = true;
         }
-        private void chatOn()
+        private void connectToVaraMonitorModem()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            // Opening Command TCP client
+
+            try
+            {
+                varaMonitorCmd = new VARAMonitorCommandClient(Values.VARAMonitorCommandClientIP, Values.VARAMonitorCommandClientPort);
+                varaMonitorCmd.OnConnectEvent += new VARAMonitorCommandClient.OnConnectEventHandler(OnMonitorCommandConnect);
+                varaMonitorCmd.OnDataRecievedEvent += new VARAMonitorCommandClient.DataReceivedEventHandler(OnMonitorCommandRecieved);
+                varaMonitorCmd.VARAMonitorCommandConnect();
+                //updateFromModemTextBox("\n Vara command channel is connected...\n");
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Connection and Recieve Callbacks
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateFromModemTextBox("\n Vara command channel error : " + ex.ToString());
+            }
+            // Opening Data TCP Client
+            //try
+            //{
+            //    varaData = new VARADataClient(Values.VARADataClientIP, Values.VARADataClientPort);
+            //    varaData.OnConnectEvent += new VARADataClient.OnConnectEventHandler(OnDataConnect);
+            //    varaData.OnDataRecievedEvent += new VARADataClient.DataReceivedEventHandler(OnDataRecieved);
+            //    varaData.VARADataClientConnect();
+            //    //updateFromModemTextBox("\n Vara data channel is connected...\n");
+            //}
+            //catch (Exception ex)
+            //{
+            //    // Catch errors in Connection and Recieve Callbacks
+            //    Log.Error(ex.ToString());
+            //    Log.Error(ex.Message.ToString());
+            //    updateFromModemTextBox("\n Vara data channel error : " + ex.ToString());
+            //}
+            Values.varaConnected = true;
+        }
+        private void setchatOn()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
 
@@ -718,12 +825,12 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.chatON))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.chatON);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.chatON);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -731,23 +838,23 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
 
         }
-        private void listenON()
+        private void setlistenON()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.listenON))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.listenON);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.listenON);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -755,22 +862,45 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
-        private void listenCQ()
+        private void setMonitorlistenON()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            try
+            {
+                if (varaMonitorCmd.VARAMonitorCommandClientWrite(VaraCMD.listenON))
+                {
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.listenON);
+                }
+                else
+                {
+                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Sending Data
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
+            }
+        }
+        private void setlistenCQ()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.listenCQ))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.listenCQ);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.listenCQ);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -778,22 +908,22 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
-        private void bw500()
+        private void setbw500()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw500))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw500);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.bw500);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -801,22 +931,45 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
-        private void bw2300()
+        private void setMonitorbw500()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            try
+            {
+                if (varaMonitorCmd.VARAMonitorCommandClientWrite(VaraCMD.bw500))
+                {
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.bw500);
+                }
+                else
+                {
+                    Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Catch errors in Sending Data
+                Log.Error(ex.ToString());
+                Log.Error(ex.Message.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
+            }
+        }
+        private void setbw2300()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw2300))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw2300);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.bw2300);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -824,22 +977,22 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
-        private void bw2750()
+        private void setbw2750()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.bw2750))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.bw2750);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.bw2750);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -847,22 +1000,22 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
-        private void myCall(string call)
+        private void setMyCall(string call)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.myCall(call)))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.myCall(call));
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.myCall(call));
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -870,7 +1023,7 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
         private void sendBeacon()
@@ -879,15 +1032,19 @@ namespace VarAQT
             if (!Values.busy)
                 try
                 {
-                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.callSign + "-9 500\r"))
+                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.stationDetails.CallSign + "-9 500\r"))
                     {
-                        updateRecievedFromModemTextBox(Values.outgoing + "CQFRAME " + Values.callSign + "-9 500\r");
-                        Log.Info("CQFRAME " + Values.callSign + "-9 500\r");
+                        updateFromModemTextBox(Values.outgoing + "CQFRAME " + Values.stationDetails.CallSign + "-9 500\r");
+                        Log.Info("CQFRAME " + Values.stationDetails.CallSign + "-9 500\r");
+                        this.BeginInvoke((Action)(() => toolStripStatusLabel10.Text = DateTime.UtcNow.ToString("HH:mm:ss")));
+                        this.BeginInvoke((Action)(() => toolStripStatusLabel10.BackColor = Color.Green));
+
                     }
                     else
                     {
                         Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                        updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                        updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                        toolStripStatusLabel10.BackColor = Color.Yellow;
                     }
                 }
                 catch (Exception ex)
@@ -895,23 +1052,67 @@ namespace VarAQT
                     // Catch errors in Sending Data
                     Log.Error(ex.ToString());
                     Log.Error(ex.Message.ToString());
-                    updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                    updateFromModemTextBox("Error : " + ex.ToString());
+                    toolStripStatusLabel10.BackColor = Color.Yellow;
                 }
+            else
+            {
+                updateFromModemTextBox("Beacon failed, Frequency busy.");
+                Log.Info("Beacon failed, Frequency busy.");
+                toolStripStatusLabel10.BackColor = Color.Red;
+            }
+            Values.sendCQ = false;
+        }
+        private void sendCQ()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            if (!Values.busy)
+                try
+                {
+                    if (varaCmd.VARACommandClientWrite("CQFRAME " + Values.stationDetails.CallSign + "-9 500\r"))
+                    {
+                        fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, Values.outgoing + "CQFRAME " + Values.stationDetails.CallSign + "-9 500\r");
+                        Log.Info("CQFRAME " + Values.stationDetails.CallSign + "-9 500\r");
+                        Values.sendCQ = true;
+                    }
+                    else
+                    {
+                        Values.sendCQ = false;
+                        Log.Error("VARACommandClientWrite (Failed) : Disconnected");
+                        fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, "VARACommandClientWrite (Failed) : Disconnected");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Values.sendCQ = false;
+                    // Catch errors in Sending Data
+                    Log.Error(ex.ToString());
+                    Log.Error(ex.Message.ToString());
+                    fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, "Error written in log file!");
+                }
+            else
+            {
+                Values.sendCQ = false;
+
+                fromModemTextBox.Invoke(UpdateFromModemTextBoxDeligate, "CQ failed, Frequency busy.");
+                Log.Info("CQ failed, Frequency busy.");
+            }
+            Values.sendCQ = false;
         }
         private void connectToStation(string callToConnect)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             try
             {
-                if (varaCmd.VARACommandClientWrite(VaraCMD.connect(Values.callSign, callToConnect)))
+                if (varaCmd.VARACommandClientWrite(VaraCMD.connect(Values.stationDetails.CallSign, callToConnect)))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.connect(Values.callSign, callToConnect));
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.connect(Values.stationDetails.CallSign, callToConnect));
                     Values.outGoingConnection = true;
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -919,7 +1120,7 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
         private void disconnectFromStation()
@@ -929,12 +1130,12 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.disconnect))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.disconnect);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.disconnect);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -942,7 +1143,7 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
         private void abortConnectedStation()
@@ -952,12 +1153,12 @@ namespace VarAQT
             {
                 if (varaCmd.VARACommandClientWrite(VaraCMD.abort))
                 {
-                    updateRecievedFromModemTextBox(Values.outgoing + VaraCMD.abort);
+                    updateFromModemTextBox(Values.outgoing + VaraCMD.abort);
                 }
                 else
                 {
                     Log.Error("VARACommandClientWrite (Failed) : Disconnected");
-                    updateRecievedFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
+                    updateFromModemTextBox("VARACommandClientWrite (Failed) : Disconnected");
                 }
             }
             catch (Exception ex)
@@ -965,7 +1166,7 @@ namespace VarAQT
                 // Catch errors in Sending Data
                 Log.Error(ex.ToString());
                 Log.Error(ex.Message.ToString());
-                updateRecievedFromModemTextBox("Error : " + ex.ToString());
+                updateFromModemTextBox("Error : " + ex.ToString());
             }
         }
         private void sendText()
@@ -1033,13 +1234,15 @@ namespace VarAQT
         private void addLastHeardFileToDataGrid()
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            List<stations> fromfile = new List<stations>();
+            List<station> fromfile = new List<station>();
 
-            fromfile = Functions.ReadXML<stations>("LastHeard.xml");
+            fromfile = Functions.ReadLastHeardXML<station>("LastHeard.xml");
 
             foreach (var station in fromfile)
             {
                 DateTime dateTime = DateTime.ParseExact(station.UTCTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                
+                // check for duplicates in datagrid.
                 string search = station.Call;
                 int rowIndex = -1;
                 foreach (DataGridViewRow rows in dataGridView1.Rows)
@@ -1048,16 +1251,22 @@ namespace VarAQT
                     {
                         rowIndex = rows.Index;
                         dataGridView1.Rows.RemoveAt(rowIndex);
+
+
                         break;
                     }
                 }
-                lastHeard.Add(new stations { UTCTime = dateTime.ToString(), Call = station.Call, SID = station.SID, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
+                
                 dataGridView1.Rows.Add(dateTime.ToString("HH:mm:ss"), station.Call, station.SID, station.SNR, station.Cnt, station.SM);
                 dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
                 dataGridView1.AutoResizeColumns();
+
+                var obj = lastHeard.FirstOrDefault<station>(x => x.Call == search);
+                if (obj == null)
+                    lastHeard.Add(new station { UTCTime = dateTime.ToString(), Call = station.Call, SID = station.SID, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
+                //if (obj != null)
+                //    lastHeard.Add(new station { UTCTime = dateTime.ToString(), Call = station.Call, SID = station.SID, SNR = station.SNR, SM = station.SM, Cnt = station.Cnt });
             }
-
-
         }
         private void setColors()
         {
@@ -1125,6 +1334,7 @@ namespace VarAQT
             label5.ForeColor = Color.White;
             label6.BackColor = SystemColors.ControlDark;
             label6.ForeColor = Color.White;
+            
 
             // Data Grid
             dataGridView1.DefaultCellStyle.ForeColor = Color.White;
@@ -1140,15 +1350,17 @@ namespace VarAQT
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
-            Functions.WriteXML<stations>(lastHeard, "LastHeard.xml");
-            //this.Close();
+            Functions.WriteLastHeardXML<station>(lastHeard, "LastHeard.xml");
             System.Windows.Forms.Application.Exit();
-
         }
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Settings settingsForm = new Settings();
             settingsForm.Show();
+        }
+        private void toolStripStatusLabel9_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
