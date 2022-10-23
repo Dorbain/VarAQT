@@ -69,6 +69,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\ContactInfo.cs" />
+    <Compile Include="Models\ConnectedStationDetails.cs" />
     <Compile Include="Models\StationDetails.cs" />
     <Compile Include="RigControl.cs">
       <SubType>Form</SubType>

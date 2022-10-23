@@ -16,7 +16,7 @@ using System.Windows.Forms.VisualStyles;
 using VaraLib;
 using Logger;
 using System.Reflection;
-
+using System.Security.Cryptography.X509Certificates;
 
 namespace VarAQT
 {
@@ -51,6 +51,8 @@ namespace VarAQT
         private void Form2_Load(object sender, EventArgs e)
         {
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
+            setColorsAndText();
+
             timer1.Interval = 100;
             ComPortCat.PortName = "COM3";
             ComPortCat.BaudRate = 38400;
@@ -107,13 +109,14 @@ namespace VarAQT
                 switch (s)
                 {
                     case string FA when s.Contains("FA"):
-                        this.label1.Text = Functions.Frequency(s);
+                        this.label1.Text = Functions.FrequencyStr(s);
+                        //Values.BaseFrequency = Functions.FrequencyInt(s);   
                         break;
                     case string FB when s.Contains("FB"):
-                        this.label2.Text = Functions.Frequency(s);
+                        this.label2.Text = Functions.FrequencyStr(s);
                         break;
                     case string SM when s.Contains("SM"):
-                        Values.sMeter = s;
+                        Values.Smeter = s;
                         this.label3.Text = Functions.Smeter(s);
                         break;
                     case string TX0 when s.Contains("TX0"):
@@ -128,13 +131,14 @@ namespace VarAQT
                         this.label4.Text = "TX";
                         this.label4.BackColor = Color.Red;
                         break;
-                    default:
-                        if (s != string.Empty)
-                            this.textBox1.Text += "!: " + s + Environment.NewLine;
-                        this.textBox1.SelectionStart = textBox1.Text.Length;
-                        this.textBox1.ScrollToCaret();
+                    case string unknown when s.Contains('?'):
+                        textBox1.Text = s;
+                        Log.Error(s, ClassName);
                         break;
+
+                        
                 }
+                textBox1.Text = s;
             }
         }
 
@@ -144,17 +148,18 @@ namespace VarAQT
             Task taskFB = new Task(() => ComPortCat.Write("FB;"));
             Task taskSM = new Task(() => ComPortCat.Write("SM0;"));
             Task taskTX = new Task(() => ComPortCat.Write("TX;"));
+            Task taskRM = new Task(() => ComPortCat.Write("RM0;"));
             taskFA.Start();
             taskFA.Wait();
-            //Thread.Sleep(100);
             taskFB.Start();
             taskFB.Wait();
-            //Thread.Sleep(100);
             taskSM.Start();
             taskSM.Wait();
-            //Thread.Sleep(100);
             taskTX.Start();
             taskTX.Wait();
+            taskRM.Start();
+            taskRM.Wait();
+
         }
         private void label1_Click(object sender, EventArgs e)
         {
@@ -193,63 +198,107 @@ namespace VarAQT
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
             string toCheck = listBox1.Text;
-
             switch (toCheck)
             {
                 case string a when toCheck.Equals("Channel 1"):
-                    textBox2.Text = "014104250";
+                    Values.FrequencyToUse = (Values.BaseFrequency - 750);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 2"):
-                    textBox2.Text = "014103500";
+                    Values.FrequencyToUse = (Values.BaseFrequency - 1500);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 3"):
-                    textBox2.Text = "014102750";
+                    Values.FrequencyToUse = (Values.BaseFrequency - 2250);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 4"):
-                    textBox2.Text = "014102000";
+                    Values.FrequencyToUse = (Values.BaseFrequency - 3000);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 5"):
-                    textBox2.Text = "014101250";
+                    Values.FrequencyToUse = (Values.BaseFrequency - 3750);
+                    updateFrq();
                     break;
-                case string a when toCheck.Equals("Channel 6"):
-                    textBox2.Text = "014105000";
-                    break;
-                case string a when toCheck.Equals("Channel 7"):
-                    textBox2.Text = "014105000";
-                    break;
-                case string a when toCheck.Equals("Channel 8"):
-                    textBox2.Text = "014105000";
-                    break;
+                //case string a when toCheck.Equals("Channel 6"):
+                //    textBox2.Text = "014105000";
+                //    break;
+                //case string a when toCheck.Equals("Channel 7"):
+                //    textBox2.Text = "014105000";
+                //    break;
+                //case string a when toCheck.Equals("Channel 8"):
+                //    textBox2.Text = "014105000";
+                //    break;
                 case string a when toCheck.Equals("Channel 9"):
-                    textBox2.Text = "014105000";
+                    Values.FrequencyToUse = 014105000;
+                    Values.BaseFrequency = 014105000;
+                    //textBox2.Text = (Values.BaseFrequency).ToString("D9");
+                    updateFrq();
                     break;
-                case string a when toCheck.Equals("Channel 10"):
-                    textBox2.Text = "014105000";
-                    break;
+                //case string a when toCheck.Equals("Channel 10"):
+                //    textBox2.Text = "014105000";
+                //    break;
                 case string a when toCheck.Equals("Channel 11"):
-                    textBox2.Text = "014105750";
+                    Values.FrequencyToUse = (Values.BaseFrequency + 750);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 12"):
-                    textBox2.Text = "014106500";
+                    Values.FrequencyToUse = (Values.BaseFrequency + 1500);
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 13"):
-                    textBox2.Text = "014107250";
+                    Values.FrequencyToUse = (Values.BaseFrequency + 2250); // Channel 9 + 2250
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 14"):
-                    textBox2.Text = "014108000";
+                    Values.FrequencyToUse = (Values.BaseFrequency + 3000); // Channel 9 + 3000
+                    updateFrq();
                     break;
                 case string a when toCheck.Equals("Channel 15"):
-                    textBox2.Text = "014108750";
+                    Values.FrequencyToUse = (Values.BaseFrequency + 3750); // Channel 9 + 3750
+                    updateFrq();
                     break;
-                default:
-                    textBox2.Text = "014105000";
-                    break;
-
-
             }
 
 
+        }
+        public static void updateFrq()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
+            ComPortCat.Write("FA" + Values.FrequencyToUse.ToString("D9") + ";");
+            Log.Info("FA" + Values.FrequencyToUse.ToString("D9") + ";");
+        }
+
+        public static void updateFrq(int frequency)
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString(), ClassName);
+            ComPortCat.Write("FA" + frequency.ToString("D9") + ";");
+            Log.Info("FA" + frequency.ToString("D9") + ";");
+        }
+
+        private void setColorsAndText()
+        {
+            Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
+            // Form:
+
+            this.BackColor = Color.FromArgb(255, 31, 31, 31);
+            this.ForeColor = Color.White;
+
+            // Labels:
+            label1.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label1.ForeColor = Color.Yellow;
+            label2.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label2.ForeColor = Color.Yellow;
+            label3.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label3.ForeColor = Color.Yellow;
+            label4.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label4.ForeColor = Color.White;
+            label5.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label5.ForeColor = Color.White;
+            label6.BackColor = Color.FromArgb(255, 31, 31, 31);
+            label6.ForeColor = Color.White;
 
         }
 
@@ -262,14 +311,6 @@ namespace VarAQT
 
 
 
-
-
-        //private void updateFromModemTextBox(string _data)
-        //{
-        //    textBox1.Text = textBox1.Text + DateTime.Now.ToString("HH:mm:ss") + " " + _data + Environment.NewLine;
-        //    textBox1.SelectionStart = textBox1.Text.Length;
-        //    textBox1.ScrollToCaret();
-        //}
 
     }
 }

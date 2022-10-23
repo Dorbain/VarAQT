@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace VaraLib
 {
+    /// <summary>
+    /// VARA Modem Commands.
+    /// </summary>
     public class VaraCMD
     {
         /// <summary>
@@ -121,4 +124,8 @@ namespace VaraLib
         /// </summary>
         public static string p2pSession { get { return "P2P SESSION\r"; } }
     }
+    /// <summary>
+    /// Additional VARA Commands
+    /// </summary>
+
 }

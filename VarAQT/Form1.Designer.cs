@@ -1,6 +1,6 @@
 ﻿namespace VarAQT
 {
-    partial class Form1
+    partial class varAQT
     {
         /// <summary>
         /// Required designer variable.
@@ -34,22 +34,21 @@
             this.disconnectFromVaraButton = new System.Windows.Forms.Button();
             this.sendBeaconTimerButton = new System.Windows.Forms.Button();
             this.sendBeaconNowButton = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.sendCQButton = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.varaToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.channelToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.channelBusyToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.utcTimeToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.rxTxToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lastBeaconTextToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lastBeaconTimeToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.frequencyTextToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.frequencyToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.stopTxNowButton = new System.Windows.Forms.Button();
             this.beaconTimer = new System.Windows.Forms.Timer(this.components);
@@ -64,9 +63,9 @@
             this.sendTextTextBox = new System.Windows.Forms.TextBox();
             this.fromMonitorTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.macroComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.button12 = new System.Windows.Forms.Button();
+            this.pingAStationButton = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label5 = new System.Windows.Forms.Label();
             this.textBox5 = new System.Windows.Forms.TextBox();
@@ -74,6 +73,15 @@
             this.sendBufferProgressBar = new System.Windows.Forms.ProgressBar();
             this.label6 = new System.Windows.Forms.Label();
             this.recieveBufferProgressBar = new System.Windows.Forms.ProgressBar();
+            this.txRxChannelComboBox = new System.Windows.Forms.ComboBox();
+            this.cqChannelComboBox = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.frequencyBandComboBox = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -81,9 +89,10 @@
             // 
             // connectToVaraButton
             // 
-            this.connectToVaraButton.Location = new System.Drawing.Point(0, 32);
+            this.connectToVaraButton.Location = new System.Drawing.Point(0, 39);
+            this.connectToVaraButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.connectToVaraButton.Name = "connectToVaraButton";
-            this.connectToVaraButton.Size = new System.Drawing.Size(135, 20);
+            this.connectToVaraButton.Size = new System.Drawing.Size(158, 25);
             this.connectToVaraButton.TabIndex = 0;
             this.connectToVaraButton.Text = "Connect to VARA";
             this.connectToVaraButton.UseVisualStyleBackColor = true;
@@ -94,19 +103,21 @@
             this.fromModemTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.fromModemTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fromModemTextBox.ForeColor = System.Drawing.Color.White;
-            this.fromModemTextBox.Location = new System.Drawing.Point(144, 56);
+            this.fromModemTextBox.Location = new System.Drawing.Point(168, 69);
+            this.fromModemTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.fromModemTextBox.Multiline = true;
             this.fromModemTextBox.Name = "fromModemTextBox";
             this.fromModemTextBox.ReadOnly = true;
             this.fromModemTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.fromModemTextBox.Size = new System.Drawing.Size(270, 75);
+            this.fromModemTextBox.Size = new System.Drawing.Size(352, 91);
             this.fromModemTextBox.TabIndex = 1;
             // 
             // disconnectFromVaraButton
             // 
-            this.disconnectFromVaraButton.Location = new System.Drawing.Point(0, 58);
+            this.disconnectFromVaraButton.Location = new System.Drawing.Point(0, 71);
+            this.disconnectFromVaraButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.disconnectFromVaraButton.Name = "disconnectFromVaraButton";
-            this.disconnectFromVaraButton.Size = new System.Drawing.Size(135, 20);
+            this.disconnectFromVaraButton.Size = new System.Drawing.Size(158, 25);
             this.disconnectFromVaraButton.TabIndex = 2;
             this.disconnectFromVaraButton.Text = "Disconnect from VARA";
             this.disconnectFromVaraButton.UseVisualStyleBackColor = true;
@@ -114,9 +125,10 @@
             // 
             // sendBeaconTimerButton
             // 
-            this.sendBeaconTimerButton.Location = new System.Drawing.Point(0, 84);
+            this.sendBeaconTimerButton.Location = new System.Drawing.Point(0, 103);
+            this.sendBeaconTimerButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sendBeaconTimerButton.Name = "sendBeaconTimerButton";
-            this.sendBeaconTimerButton.Size = new System.Drawing.Size(135, 20);
+            this.sendBeaconTimerButton.Size = new System.Drawing.Size(158, 25);
             this.sendBeaconTimerButton.TabIndex = 3;
             this.sendBeaconTimerButton.Text = "Send Beacon 5 Minutes";
             this.sendBeaconTimerButton.UseVisualStyleBackColor = true;
@@ -124,29 +136,32 @@
             // 
             // sendBeaconNowButton
             // 
-            this.sendBeaconNowButton.Location = new System.Drawing.Point(0, 110);
+            this.sendBeaconNowButton.Location = new System.Drawing.Point(0, 135);
+            this.sendBeaconNowButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sendBeaconNowButton.Name = "sendBeaconNowButton";
-            this.sendBeaconNowButton.Size = new System.Drawing.Size(135, 20);
+            this.sendBeaconNowButton.Size = new System.Drawing.Size(158, 25);
             this.sendBeaconNowButton.TabIndex = 4;
             this.sendBeaconNowButton.Text = "Send Beacon NOW";
             this.sendBeaconNowButton.UseVisualStyleBackColor = true;
             this.sendBeaconNowButton.Click += new System.EventHandler(this.button4_Click);
             // 
-            // button5
+            // sendCQButton
             // 
-            this.button5.Location = new System.Drawing.Point(0, 162);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(135, 20);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "Send CQ";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.sendCQButton.Location = new System.Drawing.Point(0, 199);
+            this.sendCQButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.sendCQButton.Name = "sendCQButton";
+            this.sendCQButton.Size = new System.Drawing.Size(158, 25);
+            this.sendCQButton.TabIndex = 5;
+            this.sendCQButton.Text = "Send CQ";
+            this.sendCQButton.UseVisualStyleBackColor = true;
+            this.sendCQButton.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(0, 188);
+            this.button6.Location = new System.Drawing.Point(1002, 568);
+            this.button6.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(135, 20);
+            this.button6.Size = new System.Drawing.Size(158, 25);
             this.button6.TabIndex = 6;
             this.button6.Text = "Enable VARA Monitor";
             this.button6.UseVisualStyleBackColor = true;
@@ -154,120 +169,111 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem,
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1157, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1350, 24);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
             this.fileToolStripMenuItem.Text = "Settings";
             this.fileToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1,
-            this.toolStripStatusLabel2,
-            this.toolStripStatusLabel3,
-            this.toolStripStatusLabel4,
-            this.toolStripStatusLabel5,
-            this.toolStripStatusLabel6,
-            this.toolStripStatusLabel7,
-            this.toolStripStatusLabel8,
-            this.toolStripStatusLabel9,
-            this.toolStripStatusLabel10});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 480);
+            this.varaToolStripStatusLabel,
+            this.channelToolStripStatusLabel,
+            this.channelBusyToolStripStatusLabel,
+            this.utcTimeToolStripStatusLabel,
+            this.rxTxToolStripStatusLabel,
+            this.lastBeaconTextToolStripStatusLabel,
+            this.lastBeaconTimeToolStripStatusLabel,
+            this.frequencyTextToolStripStatusLabel,
+            this.frequencyToolStripStatusLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 596);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1157, 22);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 17, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1350, 22);
             this.statusStrip1.TabIndex = 8;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // varaToolStripStatusLabel
             // 
-            this.toolStripStatusLabel1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(111, 17);
-            this.toolStripStatusLabel1.Text = "Command Channel";
+            this.varaToolStripStatusLabel.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.varaToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.varaToolStripStatusLabel.Name = "varaToolStripStatusLabel";
+            this.varaToolStripStatusLabel.Size = new System.Drawing.Size(51, 17);
+            this.varaToolStripStatusLabel.Text = "Unkown";
             // 
-            // toolStripStatusLabel2
+            // channelToolStripStatusLabel
             // 
-            this.toolStripStatusLabel2.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.toolStripStatusLabel2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(51, 17);
-            this.toolStripStatusLabel2.Text = "Unkown";
+            this.channelToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.channelToolStripStatusLabel.Name = "channelToolStripStatusLabel";
+            this.channelToolStripStatusLabel.Size = new System.Drawing.Size(54, 17);
+            this.channelToolStripStatusLabel.Text = "Channel:";
             // 
-            // toolStripStatusLabel3
+            // channelBusyToolStripStatusLabel
             // 
-            this.toolStripStatusLabel3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(78, 17);
-            this.toolStripStatusLabel3.Text = "Data Channel";
+            this.channelBusyToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.channelBusyToolStripStatusLabel.Name = "channelBusyToolStripStatusLabel";
+            this.channelBusyToolStripStatusLabel.Size = new System.Drawing.Size(51, 17);
+            this.channelBusyToolStripStatusLabel.Text = "Unkown";
             // 
-            // toolStripStatusLabel4
+            // utcTimeToolStripStatusLabel
             // 
-            this.toolStripStatusLabel4.ActiveLinkColor = System.Drawing.Color.Red;
-            this.toolStripStatusLabel4.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.toolStripStatusLabel4.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(58, 17);
-            this.toolStripStatusLabel4.Text = "Unknown";
+            this.utcTimeToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.utcTimeToolStripStatusLabel.Name = "utcTimeToolStripStatusLabel";
+            this.utcTimeToolStripStatusLabel.Size = new System.Drawing.Size(54, 17);
+            this.utcTimeToolStripStatusLabel.Text = "TimeUTC";
             // 
-            // toolStripStatusLabel5
+            // rxTxToolStripStatusLabel
             // 
-            this.toolStripStatusLabel5.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(65, 17);
-            this.toolStripStatusLabel5.Text = "Frequency:";
+            this.rxTxToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.rxTxToolStripStatusLabel.Name = "rxTxToolStripStatusLabel";
+            this.rxTxToolStripStatusLabel.Size = new System.Drawing.Size(21, 17);
+            this.rxTxToolStripStatusLabel.Text = "RX";
             // 
-            // toolStripStatusLabel6
+            // lastBeaconTextToolStripStatusLabel
             // 
-            this.toolStripStatusLabel6.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(51, 17);
-            this.toolStripStatusLabel6.Text = "Unkown";
+            this.lastBeaconTextToolStripStatusLabel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lastBeaconTextToolStripStatusLabel.Name = "lastBeaconTextToolStripStatusLabel";
+            this.lastBeaconTextToolStripStatusLabel.Size = new System.Drawing.Size(96, 17);
+            this.lastBeaconTextToolStripStatusLabel.Text = "Last beacon was:";
+            this.lastBeaconTextToolStripStatusLabel.Click += new System.EventHandler(this.toolStripStatusLabel9_Click);
             // 
-            // toolStripStatusLabel7
+            // lastBeaconTimeToolStripStatusLabel
             // 
-            this.toolStripStatusLabel7.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
-            this.toolStripStatusLabel7.Size = new System.Drawing.Size(54, 17);
-            this.toolStripStatusLabel7.Text = "TimeUTC";
+            this.lastBeaconTimeToolStripStatusLabel.Name = "lastBeaconTimeToolStripStatusLabel";
+            this.lastBeaconTimeToolStripStatusLabel.Size = new System.Drawing.Size(36, 17);
+            this.lastBeaconTimeToolStripStatusLabel.Text = "Time.";
             // 
-            // toolStripStatusLabel8
+            // frequencyTextToolStripStatusLabel
             // 
-            this.toolStripStatusLabel8.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
-            this.toolStripStatusLabel8.Size = new System.Drawing.Size(21, 17);
-            this.toolStripStatusLabel8.Text = "RX";
+            this.frequencyTextToolStripStatusLabel.Name = "frequencyTextToolStripStatusLabel";
+            this.frequencyTextToolStripStatusLabel.Size = new System.Drawing.Size(65, 17);
+            this.frequencyTextToolStripStatusLabel.Text = "Frequency:";
             // 
-            // toolStripStatusLabel9
+            // frequencyToolStripStatusLabel
             // 
-            this.toolStripStatusLabel9.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
-            this.toolStripStatusLabel9.Size = new System.Drawing.Size(96, 17);
-            this.toolStripStatusLabel9.Text = "Last beacon was:";
-            this.toolStripStatusLabel9.Click += new System.EventHandler(this.toolStripStatusLabel9_Click);
-            // 
-            // toolStripStatusLabel10
-            // 
-            this.toolStripStatusLabel10.Name = "toolStripStatusLabel10";
-            this.toolStripStatusLabel10.Size = new System.Drawing.Size(36, 17);
-            this.toolStripStatusLabel10.Text = "Time.";
+            this.frequencyToolStripStatusLabel.Name = "frequencyToolStripStatusLabel";
+            this.frequencyToolStripStatusLabel.Size = new System.Drawing.Size(30, 17);
+            this.frequencyToolStripStatusLabel.Text = "Mhz";
             // 
             // timer1
             // 
@@ -275,11 +281,12 @@
             // 
             // stopTxNowButton
             // 
-            this.stopTxNowButton.Location = new System.Drawing.Point(0, 136);
+            this.stopTxNowButton.Location = new System.Drawing.Point(0, 167);
+            this.stopTxNowButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.stopTxNowButton.Name = "stopTxNowButton";
-            this.stopTxNowButton.Size = new System.Drawing.Size(135, 20);
+            this.stopTxNowButton.Size = new System.Drawing.Size(158, 25);
             this.stopTxNowButton.TabIndex = 9;
-            this.stopTxNowButton.Text = "Stop Beacon and TX";
+            this.stopTxNowButton.Text = "Stop Beacon and TXStr";
             this.stopTxNowButton.UseVisualStyleBackColor = true;
             this.stopTxNowButton.Click += new System.EventHandler(this.button7_Click);
             // 
@@ -292,9 +299,10 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.SystemColors.Control;
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label1.Location = new System.Drawing.Point(152, 352);
+            this.label1.Location = new System.Drawing.Point(178, 433);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(47, 13);
+            this.label1.Size = new System.Drawing.Size(57, 16);
             this.label1.TabIndex = 10;
             this.label1.Text = "S-Meter:";
             // 
@@ -302,9 +310,10 @@
             // 
             this.callSignTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.callSignTextBox.ForeColor = System.Drawing.Color.White;
-            this.callSignTextBox.Location = new System.Drawing.Point(93, 417);
+            this.callSignTextBox.Location = new System.Drawing.Point(99, 509);
+            this.callSignTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.callSignTextBox.Name = "callSignTextBox";
-            this.callSignTextBox.Size = new System.Drawing.Size(75, 20);
+            this.callSignTextBox.Size = new System.Drawing.Size(88, 22);
             this.callSignTextBox.TabIndex = 11;
             // 
             // richTextBox1
@@ -312,17 +321,19 @@
             this.richTextBox1.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.richTextBox1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBox1.ForeColor = System.Drawing.Color.White;
-            this.richTextBox1.Location = new System.Drawing.Point(144, 137);
+            this.richTextBox1.Location = new System.Drawing.Point(168, 169);
+            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(636, 203);
+            this.richTextBox1.Size = new System.Drawing.Size(742, 249);
             this.richTextBox1.TabIndex = 12;
             this.richTextBox1.Text = "";
             // 
             // sendTextButton
             // 
-            this.sendTextButton.Location = new System.Drawing.Point(693, 444);
+            this.sendTextButton.Location = new System.Drawing.Point(808, 546);
+            this.sendTextButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sendTextButton.Name = "sendTextButton";
-            this.sendTextButton.Size = new System.Drawing.Size(75, 23);
+            this.sendTextButton.Size = new System.Drawing.Size(88, 29);
             this.sendTextButton.TabIndex = 13;
             this.sendTextButton.Text = "Send";
             this.sendTextButton.UseVisualStyleBackColor = true;
@@ -330,9 +341,10 @@
             // 
             // connectToStationButton
             // 
-            this.connectToStationButton.Location = new System.Drawing.Point(12, 416);
+            this.connectToStationButton.Location = new System.Drawing.Point(3, 506);
+            this.connectToStationButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.connectToStationButton.Name = "connectToStationButton";
-            this.connectToStationButton.Size = new System.Drawing.Size(75, 20);
+            this.connectToStationButton.Size = new System.Drawing.Size(88, 25);
             this.connectToStationButton.TabIndex = 14;
             this.connectToStationButton.Text = "Connect";
             this.connectToStationButton.UseVisualStyleBackColor = true;
@@ -340,9 +352,10 @@
             // 
             // disconnectFromStationButton
             // 
-            this.disconnectFromStationButton.Location = new System.Drawing.Point(12, 444);
+            this.disconnectFromStationButton.Location = new System.Drawing.Point(3, 568);
+            this.disconnectFromStationButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.disconnectFromStationButton.Name = "disconnectFromStationButton";
-            this.disconnectFromStationButton.Size = new System.Drawing.Size(75, 20);
+            this.disconnectFromStationButton.Size = new System.Drawing.Size(88, 25);
             this.disconnectFromStationButton.TabIndex = 15;
             this.disconnectFromStationButton.Text = "Disconnect";
             this.disconnectFromStationButton.UseVisualStyleBackColor = true;
@@ -350,9 +363,10 @@
             // 
             // abortConnectionButton
             // 
-            this.abortConnectionButton.Location = new System.Drawing.Point(93, 444);
+            this.abortConnectionButton.Location = new System.Drawing.Point(99, 564);
+            this.abortConnectionButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.abortConnectionButton.Name = "abortConnectionButton";
-            this.abortConnectionButton.Size = new System.Drawing.Size(75, 23);
+            this.abortConnectionButton.Size = new System.Drawing.Size(88, 29);
             this.abortConnectionButton.TabIndex = 16;
             this.abortConnectionButton.Text = "Abort";
             this.abortConnectionButton.UseVisualStyleBackColor = true;
@@ -362,9 +376,10 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label2.Location = new System.Drawing.Point(141, 32);
+            this.label2.Location = new System.Drawing.Point(164, 39);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(135, 13);
+            this.label2.Size = new System.Drawing.Size(162, 16);
             this.label2.TabIndex = 17;
             this.label2.Text = "VARA HF Modem channel:";
             // 
@@ -373,10 +388,11 @@
             this.sendTextTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.sendTextTextBox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.sendTextTextBox.ForeColor = System.Drawing.Color.White;
-            this.sendTextTextBox.Location = new System.Drawing.Point(174, 421);
+            this.sendTextTextBox.Location = new System.Drawing.Point(203, 518);
+            this.sendTextTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sendTextTextBox.Multiline = true;
             this.sendTextTextBox.Name = "sendTextTextBox";
-            this.sendTextTextBox.Size = new System.Drawing.Size(513, 46);
+            this.sendTextTextBox.Size = new System.Drawing.Size(598, 55);
             this.sendTextTextBox.TabIndex = 18;
             // 
             // fromMonitorTextBox
@@ -384,12 +400,13 @@
             this.fromMonitorTextBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.fromMonitorTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.fromMonitorTextBox.ForeColor = System.Drawing.Color.White;
-            this.fromMonitorTextBox.Location = new System.Drawing.Point(420, 56);
+            this.fromMonitorTextBox.Location = new System.Drawing.Point(528, 69);
+            this.fromMonitorTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.fromMonitorTextBox.Multiline = true;
             this.fromMonitorTextBox.Name = "fromMonitorTextBox";
             this.fromMonitorTextBox.ReadOnly = true;
             this.fromMonitorTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.fromMonitorTextBox.Size = new System.Drawing.Size(360, 75);
+            this.fromMonitorTextBox.Size = new System.Drawing.Size(382, 91);
             this.fromMonitorTextBox.TabIndex = 19;
             // 
             // label3
@@ -397,18 +414,19 @@
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.SystemColors.Control;
             this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label3.Location = new System.Drawing.Point(417, 32);
+            this.label3.Location = new System.Drawing.Point(525, 39);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(135, 13);
+            this.label3.Size = new System.Drawing.Size(162, 16);
             this.label3.TabIndex = 20;
             this.label3.Text = "VARA HF Monitor channel:";
             // 
-            // comboBox1
+            // macroComboBox
             // 
-            this.comboBox1.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.comboBox1.ForeColor = System.Drawing.Color.White;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.macroComboBox.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.macroComboBox.ForeColor = System.Drawing.Color.White;
+            this.macroComboBox.FormattingEnabled = true;
+            this.macroComboBox.Items.AddRange(new object[] {
             "<LHR>",
             "<LHE>",
             "<INFO>",
@@ -417,31 +435,34 @@
             "<FSR>",
             "<FSO>",
             "<DISC>"});
-            this.comboBox1.Location = new System.Drawing.Point(566, 394);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 21;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.macroComboBox.Location = new System.Drawing.Point(264, 488);
+            this.macroComboBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.macroComboBox.Name = "macroComboBox";
+            this.macroComboBox.Size = new System.Drawing.Size(219, 24);
+            this.macroComboBox.TabIndex = 21;
+            this.macroComboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(513, 402);
+            this.label4.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.label4.Location = new System.Drawing.Point(200, 491);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(47, 13);
+            this.label4.Size = new System.Drawing.Size(56, 16);
             this.label4.TabIndex = 22;
             this.label4.Text = "Macro\'s:";
             // 
-            // button12
+            // pingAStationButton
             // 
-            this.button12.Location = new System.Drawing.Point(0, 214);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(135, 20);
-            this.button12.TabIndex = 23;
-            this.button12.Text = "Retry Data channel";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
+            this.pingAStationButton.Location = new System.Drawing.Point(3, 537);
+            this.pingAStationButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.pingAStationButton.Name = "pingAStationButton";
+            this.pingAStationButton.Size = new System.Drawing.Size(88, 25);
+            this.pingAStationButton.TabIndex = 23;
+            this.pingAStationButton.Text = "Ping";
+            this.pingAStationButton.UseVisualStyleBackColor = true;
+            this.pingAStationButton.Click += new System.EventHandler(this.button12_Click);
             // 
             // dataGridView1
             // 
@@ -451,44 +472,51 @@
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(786, 56);
+            this.dataGridView1.Location = new System.Drawing.Point(917, 69);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.dataGridView1.Size = new System.Drawing.Size(358, 284);
+            this.dataGridView1.Size = new System.Drawing.Size(417, 350);
             this.dataGridView1.TabIndex = 24;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label5.Location = new System.Drawing.Point(260, 352);
+            this.label5.Location = new System.Drawing.Point(304, 433);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(33, 13);
+            this.label5.Size = new System.Drawing.Size(38, 16);
             this.label5.TabIndex = 25;
             this.label5.Text = "SNR:";
             // 
             // textBox5
             // 
             this.textBox5.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.textBox5.Location = new System.Drawing.Point(205, 349);
+            this.textBox5.Location = new System.Drawing.Point(239, 430);
+            this.textBox5.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(49, 20);
+            this.textBox5.Size = new System.Drawing.Size(56, 22);
             this.textBox5.TabIndex = 26;
             // 
             // textBox6
             // 
             this.textBox6.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.textBox6.Location = new System.Drawing.Point(296, 349);
+            this.textBox6.Location = new System.Drawing.Point(346, 430);
+            this.textBox6.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(49, 20);
+            this.textBox6.Size = new System.Drawing.Size(56, 22);
             this.textBox6.TabIndex = 27;
             // 
             // sendBufferProgressBar
             // 
-            this.sendBufferProgressBar.Location = new System.Drawing.Point(351, 346);
+            this.sendBufferProgressBar.Location = new System.Drawing.Point(410, 426);
+            this.sendBufferProgressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sendBufferProgressBar.Name = "sendBufferProgressBar";
-            this.sendBufferProgressBar.Size = new System.Drawing.Size(429, 17);
+            this.sendBufferProgressBar.Size = new System.Drawing.Size(500, 21);
+            this.sendBufferProgressBar.Step = 1;
             this.sendBufferProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.sendBufferProgressBar.TabIndex = 28;
             // 
@@ -496,26 +524,164 @@
             // 
             this.label6.AutoSize = true;
             this.label6.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label6.Location = new System.Drawing.Point(783, 32);
+            this.label6.Location = new System.Drawing.Point(914, 39);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(99, 13);
+            this.label6.Size = new System.Drawing.Size(158, 16);
             this.label6.TabIndex = 29;
-            this.label6.Text = "Last heard station:";
+            this.label6.Text = "Last heard stations today:";
             // 
             // recieveBufferProgressBar
             // 
-            this.recieveBufferProgressBar.Location = new System.Drawing.Point(351, 369);
+            this.recieveBufferProgressBar.Location = new System.Drawing.Point(410, 454);
+            this.recieveBufferProgressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.recieveBufferProgressBar.Name = "recieveBufferProgressBar";
-            this.recieveBufferProgressBar.Size = new System.Drawing.Size(429, 17);
+            this.recieveBufferProgressBar.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.recieveBufferProgressBar.Size = new System.Drawing.Size(500, 21);
+            this.recieveBufferProgressBar.Step = 1;
+            this.recieveBufferProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.recieveBufferProgressBar.TabIndex = 30;
             // 
-            // Form1
+            // txRxChannelComboBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.txRxChannelComboBox.FormattingEnabled = true;
+            this.txRxChannelComboBox.Items.AddRange(new object[] {
+            "Channel 5",
+            "Channel 4",
+            "Channel 3",
+            "Channel 2",
+            "Channel 1",
+            "Channel 9 - CQ",
+            "Channel 11",
+            "Channel 12",
+            "Channel 13",
+            "Channel 14",
+            "Channel 15"});
+            this.txRxChannelComboBox.Location = new System.Drawing.Point(0, 293);
+            this.txRxChannelComboBox.Name = "txRxChannelComboBox";
+            this.txRxChannelComboBox.Size = new System.Drawing.Size(158, 24);
+            this.txRxChannelComboBox.TabIndex = 31;
+            this.txRxChannelComboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
+            // cqChannelComboBox
+            // 
+            this.cqChannelComboBox.FormattingEnabled = true;
+            this.cqChannelComboBox.Items.AddRange(new object[] {
+            "Channel 5",
+            "Channel 4",
+            "Channel 3",
+            "Channel 2",
+            "Channel 1",
+            "Channel 9 - CQ",
+            "Channel 11",
+            "Channel 12",
+            "Channel 13",
+            "Channel 14",
+            "Channel 15"});
+            this.cqChannelComboBox.Location = new System.Drawing.Point(0, 243);
+            this.cqChannelComboBox.Name = "cqChannelComboBox";
+            this.cqChannelComboBox.Size = new System.Drawing.Size(158, 24);
+            this.cqChannelComboBox.TabIndex = 32;
+            this.cqChannelComboBox.SelectedIndexChanged += new System.EventHandler(this.cqChannelComboBox_SelectedIndexChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(0, 224);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(81, 16);
+            this.label7.TabIndex = 33;
+            this.label7.Text = "CQ Channel:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(3, 274);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(113, 16);
+            this.label8.TabIndex = 34;
+            this.label8.Text = "TXStr/RX Channel:";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(0, 324);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(106, 16);
+            this.label9.TabIndex = 35;
+            this.label9.Text = "Frequency Band:";
+            // 
+            // frequencyBandComboBox
+            // 
+            this.frequencyBandComboBox.FormattingEnabled = true;
+            this.frequencyBandComboBox.Items.AddRange(new object[] {
+            "10 Metres",
+            "12 Metres",
+            "15 Metres",
+            "17 Metres",
+            "20 Metres",
+            "30 Metres",
+            "40 Metres",
+            "60 Metres",
+            "80 Metres",
+            "160 Metres"});
+            this.frequencyBandComboBox.Location = new System.Drawing.Point(0, 344);
+            this.frequencyBandComboBox.Name = "frequencyBandComboBox";
+            this.frequencyBandComboBox.Size = new System.Drawing.Size(158, 24);
+            this.frequencyBandComboBox.TabIndex = 36;
+            this.frequencyBandComboBox.SelectedIndexChanged += new System.EventHandler(this.frequencyBandComboBox_SelectedIndexChanged);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label10.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.ForeColor = System.Drawing.Color.White;
+            this.label10.Location = new System.Drawing.Point(903, 494);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(38, 18);
+            this.label10.TabIndex = 37;
+            this.label10.Text = "Who";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label11.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.ForeColor = System.Drawing.Color.White;
+            this.label11.Location = new System.Drawing.Point(903, 518);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(59, 18);
+            this.label11.TabIndex = 38;
+            this.label11.Text = "His LOC";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label12.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(903, 541);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(74, 18);
+            this.label12.TabIndex = 39;
+            this.label12.Text = "His Report";
+            // 
+            // varAQT
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1157, 502);
+            this.ClientSize = new System.Drawing.Size(1350, 618);
             this.ControlBox = false;
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.frequencyBandComboBox);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.cqChannelComboBox);
+            this.Controls.Add(this.txRxChannelComboBox);
             this.Controls.Add(this.recieveBufferProgressBar);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.sendBufferProgressBar);
@@ -523,9 +689,9 @@
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.button12);
+            this.Controls.Add(this.pingAStationButton);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.macroComboBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.fromMonitorTextBox);
             this.Controls.Add(this.sendTextTextBox);
@@ -540,16 +706,18 @@
             this.Controls.Add(this.stopTxNowButton);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
+            this.Controls.Add(this.sendCQButton);
             this.Controls.Add(this.sendBeaconNowButton);
             this.Controls.Add(this.sendBeaconTimerButton);
             this.Controls.Add(this.disconnectFromVaraButton);
             this.Controls.Add(this.fromModemTextBox);
             this.Controls.Add(this.connectToVaraButton);
             this.Controls.Add(this.menuStrip1);
-            this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ForeColor = System.Drawing.Color.White;
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.Name = "varAQT";
             this.Text = "VarAQT - PD1AQT";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
@@ -569,20 +737,17 @@
         private System.Windows.Forms.Button disconnectFromVaraButton;
         private System.Windows.Forms.Button sendBeaconTimerButton;
         private System.Windows.Forms.Button sendBeaconNowButton;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button sendCQButton;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.ToolStripStatusLabel varaToolStripStatusLabel;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
+        private System.Windows.Forms.ToolStripStatusLabel channelToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel channelBusyToolStripStatusLabel;
         private System.Windows.Forms.Button stopTxNowButton;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
+        private System.Windows.Forms.ToolStripStatusLabel utcTimeToolStripStatusLabel;
         private System.Windows.Forms.Timer beaconTimer;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox callSignTextBox;
@@ -595,20 +760,31 @@
         private System.Windows.Forms.TextBox sendTextTextBox;
         private System.Windows.Forms.TextBox fromMonitorTextBox;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox macroComboBox;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button pingAStationButton;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.ProgressBar sendBufferProgressBar;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
+        private System.Windows.Forms.ToolStripStatusLabel rxTxToolStripStatusLabel;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
+        private System.Windows.Forms.ToolStripStatusLabel lastBeaconTextToolStripStatusLabel;
         private System.Windows.Forms.ProgressBar recieveBufferProgressBar;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
+        private System.Windows.Forms.ToolStripStatusLabel lastBeaconTimeToolStripStatusLabel;
+        private System.Windows.Forms.ComboBox txRxChannelComboBox;
+        private System.Windows.Forms.ComboBox cqChannelComboBox;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox frequencyBandComboBox;
+        private System.Windows.Forms.ToolStripStatusLabel frequencyTextToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel frequencyToolStripStatusLabel;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
     }
 }
 

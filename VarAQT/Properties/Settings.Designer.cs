@@ -106,5 +106,17 @@ namespace VarAQT.Properties {
                 this["VaraMonitorKissClientPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int BeaconInterval {
+            get {
+                return ((int)(this["BeaconInterval"]));
+            }
+            set {
+                this["BeaconInterval"] = value;
+            }
+        }
     }
 }

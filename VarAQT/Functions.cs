@@ -24,7 +24,7 @@ namespace VarAQT
 {
     public static class Functions
     {
-        public static string Frequency(string text)
+        public static string FrequencyStr(string text)
         {
             char[] remove = { ';', 'F', 'A', 'B' };
             text = text.Trim(remove);
@@ -32,6 +32,14 @@ namespace VarAQT
             text = text.Insert(7, ".");
             return text;
         }
+
+        public static int FrequencyInt(string text)
+        {
+            char[] remove = { ';', 'F', 'A', 'B' };
+            text = text.Trim(remove);
+            return int.Parse(text);
+        }
+
 
         /// <summary>
         /// Removes the S,M and ; from the string.
@@ -42,6 +50,7 @@ namespace VarAQT
         {
             char[] remove = { ';', 'S', 'M' };
             text = text.Trim(remove);
+            text = text.Replace(" ", "");
             return text;
         }
 
@@ -52,8 +61,9 @@ namespace VarAQT
         /// <returns></returns>
         public static string Snmeter(string text)
         {
-            char[] remove = { ' ', ',', '.', 'S', 'N' };
+            char[] remove = { 'S', 'N' };
             text = text.Trim(remove);
+            text = text.Replace(" ", "");
             return text;
         }
 

@@ -24,9 +24,10 @@ namespace VarAQT
             Log.enableInfo = true;
             Log.Debug(MethodBase.GetCurrentMethod().Name.ToString());
             Values.stationDetails = Functions.readStationDetailsXML();
+            Values.connectedStationDetails = new Models.ConnectedStationDetails();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new varAQT());
             Functions.WriteStationDetailsXML(Values.stationDetails);
         }
     }
